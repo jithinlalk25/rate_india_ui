@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
   },
   loader: {
-    marginVertical: 20,
+    marginVertical: 100,
   },
 });
 
