@@ -90,26 +90,27 @@ const index = () => {
     return (
       <Card
         onPress={() => router.navigate(`/item/${item._id}`)}
-        style={{ marginLeft: 5, marginRight: 5, marginBottom: 5 }}
+        style={{ marginLeft: 15, marginRight: 15, marginTop:20 }}
       >
-        <View style={{ flex: 1, flexDirection: "row" }}>
+        <View style={{ flex: 1, flexDirection: "row", padding:10 }}>
           <Avatar.Image
             style={{ margin: 5 }}
-            size={100}
+            size={80}
             source={{ uri: item.image }}
           />
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, justifyContent:'center', marginLeft:5 }}>
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
               {item.name}
             </Text>
-            <Text> {item.description} </Text>
+            <Text style={{ color:'#666' }}> {item.description} </Text>
           </View>
-          <View style={{ margin: 15 }}>
+          <View style={{ margin: 15, justifyContent:'center' }}>
             <Avatar.Text
-              size={80}
+              size={40}
               label={item.rating}
               color="#000000"
               style={{ backgroundColor: "#FDCC0D" }}
+              maxFontSizeMultiplier={0.5}
             />
           </View>
         </View>
