@@ -5,10 +5,11 @@ import { View } from "react-native";
 import { useSession } from "../ctx";
 import { Button, Text, TextInput } from "react-native-paper";
 import axios from "axios";
+import { Constant } from "../constants";
 
 async function sendOtp(phoneNumber, setOtpSend) {
   try {
-    const response = await axios.post("http://192.168.1.32:3000/auth/sendOtp", {
+    const response = await axios.post(`${Constant.API_URL}auth/sendOtp`, {
       phoneNumber,
     });
     setOtpSend(true);
@@ -20,13 +21,10 @@ async function sendOtp(phoneNumber, setOtpSend) {
 
 async function verifyOtp(phoneNumber, otp, signIn, router) {
   try {
-    const response = await axios.post(
-      "http://192.168.1.32:3000/auth/verifyOtp",
-      {
-        phoneNumber,
-        otp,
-      }
-    );
+    const response = await axios.post(`${Constant.API_URL}auth/verifyOtp`, {
+      phoneNumber,
+      otp,
+    });
     console.log(response.data.token);
 
     signIn(response.data.token);

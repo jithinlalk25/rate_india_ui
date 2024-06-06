@@ -22,5 +22,15 @@ export default function AppLayout() {
   // return <Redirect href="/test" />;
 
   // This layout can be deferred because it's not the root layout.
-  return <Stack />;
+  // return <Stack />;
+  return (
+    <Stack>
+      <Stack.Screen
+        name="(tabs)"
+        options={{ headerTitle: "Rate India", headerShown: false }}
+      />
+      <Stack.Screen name="item/[id]" />
+      <Stack.Screen name="userProfile" options={{ headerTitle: "Profile" }} />
+    </Stack>
+  );
 }

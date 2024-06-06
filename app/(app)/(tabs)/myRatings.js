@@ -1,18 +1,21 @@
 import { FlatList, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Avatar, Text } from "react-native-paper";
-import { useSession } from "../../ctx";
+import { Button, Text } from "react-native-paper";
+import { useSession } from "../../../ctx";
 import axios from "axios";
+import { Constant } from "../../../constants";
+import { router } from "expo-router";
 
 const index = () => {
   const [data, setData] = useState(null);
   const { session } = useSession();
 
-  const getAllItems = async () => {
+  const getRatingsByUser = async () => {
     console.log("+++++++++++", session);
     try {
-      const response = await axios.get(
-        "http://192.168.1.32:3000/item/getAllItems",
+      const response = await axios.post(
+        `${Constant.API_URL}rating/getRatingsByUser`,
+        {},
         {
           headers: {
             token: session,
@@ -29,25 +32,28 @@ const index = () => {
 
   //on first fetch data.
   useEffect(() => {
-    getAllItems();
+    getRatingsByUser();
   }, []);
 
   // return <View></View>;
   const renderItem = ({ item, index }) => {
     return (
       <View>
-        <Avatar.Image size={100} source={{ uri: item.image }} />
-        <Text>
-          {index}. {item.name}
-        </Text>
-        <Text> Description: {item.description} </Text>
-        {/* <Text> Ingredient : {item.ingredients}</Text> */}
+        <Text>{item.itemId}</Text>
+        <Text>{item.rating}</Text>
+        <Text>{item.review}</Text>
+        <Button
+          mode="contained"
+          onPress={() => router.navigate(`/item/${item.itemId}`)}
+        >
+          Edit
+        </Button>
       </View>
     );
   };
 
   return (
-    <View>
+    <View style={{ paddingTop: 5 }}>
       {data && (
         <FlatList
           data={data}
