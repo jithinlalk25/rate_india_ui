@@ -1,6 +1,12 @@
 import { FlatList, ImageBackground, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Avatar, Card, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Avatar,
+  Card,
+  Searchbar,
+  Text,
+} from "react-native-paper";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
@@ -13,6 +19,7 @@ const index = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchData = async (pageNumber = 1) => {
     if (loading || !hasMore) return;
@@ -102,7 +109,13 @@ const index = () => {
   };
 
   return (
-    <View style={{ paddingTop: 10 }}>
+    <View>
+      <Searchbar
+        placeholder="Search"
+        onChangeText={setSearchQuery}
+        value={searchQuery}
+        style={{ margin: 10 }}
+      />
       {data && (
         <FlatList
           data={data}
