@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, ImageBackground, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Avatar, Card, Text } from "react-native-paper";
 import { useSession } from "../../../ctx";
@@ -7,7 +7,6 @@ import { Constant } from "../../../constants";
 import { router } from "expo-router";
 
 const index = () => {
-  // const [data, setData] = useState(null);
   const { session } = useSession();
 
   const [data, setData] = useState([]);
@@ -32,7 +31,6 @@ const index = () => {
           },
         }
       );
-      // setData(response.data);
 
       const newData = response.data;
 
@@ -45,31 +43,6 @@ const index = () => {
       setLoading(false);
     }
   };
-
-  // const getItems = async () => {
-  //   console.log("+++++++++++", session);
-  //   try {
-  //     const response = await axios.post(
-  //       `${Constant.API_URL}item/getItems`,
-  //       {},
-  //       {
-  //         headers: {
-  //           token: session,
-  //         },
-  //       }
-  //     );
-  //     setData(response.data);
-  //     // console.log(response.data, typeof response.data);
-  //     // return response.data;
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  //on first fetch data.
-  // useEffect(() => {
-  //   getItems();
-  // }, []);
 
   useEffect(() => {
     fetchData();
@@ -85,33 +58,43 @@ const index = () => {
     return loading ? <ActivityIndicator style={styles.loader} /> : null;
   };
 
-  // return <View></View>;
   const renderItem = ({ item, index }) => {
     return (
       <Card
         onPress={() => router.navigate(`/item/${item._id}`)}
-        style={{ marginLeft: 15, marginRight: 15, marginTop:20 }}
+        style={{
+          backgroundColor: "white",
+          marginLeft: 10,
+          marginRight: 10,
+          marginBottom: 10,
+        }}
       >
-        <View style={{ flex: 1, flexDirection: "row", padding:10 }}>
+        <View style={{ flex: 1, flexDirection: "row", padding: 10 }}>
           <Avatar.Image
             style={{ margin: 5 }}
             size={80}
             source={{ uri: item.image }}
           />
-          <View style={{ flex: 1, justifyContent:'center', marginLeft:5 }}>
+          <View style={{ flex: 1, justifyContent: "center", marginLeft: 5 }}>
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
               {item.name}
             </Text>
-            <Text style={{ color:'#666' }}> {item.description} </Text>
+            <Text style={{ color: "#666" }}> {item.description} </Text>
           </View>
-          <View style={{ margin: 15, justifyContent:'center' }}>
-            <Avatar.Text
-              size={40}
-              label={item.rating}
-              color="#000000"
-              style={{ backgroundColor: "#FDCC0D" }}
-              maxFontSizeMultiplier={0.5}
-            />
+          <View style={{ justifyContent: "center" }}>
+            <ImageBackground
+              source={require("../../../assets/star.png")}
+              style={{
+                height: 80,
+                width: 80,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <View style={{ paddingTop: 5 }}>
+                <Text style={styles.text}>{item.rating}</Text>
+              </View>
+            </ImageBackground>
           </View>
         </View>
       </Card>
@@ -119,7 +102,7 @@ const index = () => {
   };
 
   return (
-    <View style={{ paddingTop: 5 }}>
+    <View style={{ paddingTop: 10 }}>
       {data && (
         <FlatList
           data={data}
@@ -146,6 +129,12 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginVertical: 100,
+  },
+
+  text: {
+    color: "black",
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });
 
