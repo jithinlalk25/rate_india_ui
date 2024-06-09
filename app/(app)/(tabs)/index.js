@@ -20,6 +20,36 @@ const index = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResult, setsearchResult] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const searchData = async (text) => {
+    setSearchQuery(text);
+    text = text.trim();
+    if (text.length < 3) {
+      return;
+    }
+
+    setSearchLoading(true);
+
+    try {
+      const response = await axios.post(
+        `${Constant.API_URL}item/searchItems`,
+        { text },
+        {
+          headers: {
+            token: session,
+          },
+        }
+      );
+
+      setsearchResult(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   const fetchData = async (pageNumber = 1) => {
     if (loading || !hasMore) return;
@@ -112,11 +142,11 @@ const index = () => {
     <View>
       <Searchbar
         placeholder="Search"
-        onChangeText={setSearchQuery}
+        onChangeText={searchData}
         value={searchQuery}
         style={{ margin: 10 }}
       />
-      {data && (
+      {data && searchQuery.trim().length == 0 && (
         <FlatList
           data={data}
           renderItem={renderItem}
@@ -126,6 +156,14 @@ const index = () => {
           ListFooterComponent={renderFooter}
         />
       )}
+      {searchResult && searchQuery.trim().length >= 3 && (
+        <FlatList
+          data={searchResult}
+          renderItem={renderItem}
+          keyExtractor={(item) => item._id}
+        />
+      )}
+      {searchLoading && <ActivityIndicator style={styles.loader} />}
     </View>
   );
 };
