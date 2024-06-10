@@ -80,7 +80,7 @@ export default function Page() {
         <View style={{ flex: 1 }}>
           <View style={{ flex: 1, alignItems: "center" }}>
             <Avatar.Image
-              style={{ margin: 5 }}
+              style={{ margin: 5, marginTop:20 }}
               size={300}
               source={{ uri: data.item.image }}
             />
@@ -90,19 +90,22 @@ export default function Page() {
             <Text style={{ fontSize: 18 }}>{data.item.description}</Text>
             <View
               style={{
-                flex: 1,
                 flexDirection: "row",
+                marginTop:10, 
               }}
             >
-              <View>
-                <Avatar.Text
-                  size={80}
-                  label={data.item.rating}
+              <View style={{ display:"flex", flexDirection:"column", justifyContent:"center" }}>
+                <Text
                   color="#000000"
-                  style={{ backgroundColor: "#FDCC0D" }}
-                />
+                  style={{
+                    fontSize:20,
+                    fongWeight:"bold",
+                  }}
+                >
+                  {data.item.rating}
+                </Text>
               </View>
-              <View style={{ alignItems: "center" }}>
+              <View style={{ alignItems: "center", display:"flex", flexDirection:"column", justifyContent:"center", marginLeft:10 }}>
                 <AirbnbRating
                   count={5}
                   defaultRating={data.item.rating}
@@ -110,30 +113,36 @@ export default function Page() {
                   showRating={false}
                   isDisabled={true}
                 />
-                <Text>{data.item.ratingCount}</Text>
               </View>
             </View>
           </View>
-
           <View
             style={{
               borderColor: "black",
               borderWidth: 1,
+              display:"flex",
+              flexDirection:"row",
+              paddingLeft:10,
+              paddingTop:10,
+              paddingBottom:10
             }}
           >
-            <Text>My Rating</Text>
-            <TouchableOpacity onPress={showModal}>
-              <AirbnbRating
-                count={5}
-                defaultRating={data.userRating ? data.userRating.rating : 0}
-                size={40}
-                showRating={false}
-                isDisabled={true}
-                on
-              />
-            </TouchableOpacity>
+            <View style={{ display:"flex", flexDirection:"column", justifyContent:"center" , marginRight:10 }}>
+              <Text style={{ fontSize:16, fontWeight:'400' }}>Hello</Text>
+            </View>
+            <View>
+              <TouchableOpacity onPress={showModal}>
+                <AirbnbRating
+                  count={5}
+                  defaultRating={data.userRating ? data.userRating.rating : 0}
+                  size={40}
+                  showRating={false}
+                  isDisabled={true}
+                  on
+                />
+              </TouchableOpacity>
+             </View>
           </View>
-
           <View>
             <FlatList
               data={ratings}
