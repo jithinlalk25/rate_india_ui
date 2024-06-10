@@ -2,7 +2,7 @@
   "expo": {
     "name": "Rate India",
     "slug": "rate_india_ui",
-    "scheme": "rate_india_ui",
+    "scheme": "rate-india-ui",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +16,8 @@
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "bundleIdentifier": "test"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,6 +37,7 @@
       "eas": {
         "projectId": "ec98f2fa-b323-41d7-98d5-85979cbb7258"
       }
-    }
+    },
+    "owner": "jithinlalk25"
   }
 }
