@@ -1,11 +1,15 @@
 {
   "cli": {
-    "version": ">= 9.1.0"
+    "version": ">= 9.1.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "development"
+      }
     },
     "ios-simulator": {
       "extends": "development",
@@ -14,9 +18,12 @@
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "preview"
+      }
     },
-    "production": {}
+    "production": { "autoIncrement": true }
   },
   "submit": {
     "production": {}
