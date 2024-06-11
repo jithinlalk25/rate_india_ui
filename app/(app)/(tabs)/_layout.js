@@ -16,7 +16,7 @@ export default function TabLayout() {
             <IconButton
               icon="account-circle"
               iconColor="#000000"
-              size={30}
+              size={35}
               onPress={() => router.navigate(`/userProfile`)}
             />
           ),
