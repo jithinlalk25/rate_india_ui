@@ -19,10 +19,6 @@ export default function AppLayout() {
     return <Redirect href="/sign-in" />;
   }
 
-  // return <Redirect href="/test" />;
-
-  // This layout can be deferred because it's not the root layout.
-  // return <Stack />;
   return (
     <Stack>
       <Stack.Screen

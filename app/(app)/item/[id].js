@@ -10,7 +10,6 @@ import { AirbnbRating } from "react-native-ratings";
 export default function Page() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
-  console.log("=================", id);
 
   const [data, setData] = useState(null);
   const [ratings, setRatings] = useState(null);
@@ -23,7 +22,6 @@ export default function Page() {
   const containerStyle = { backgroundColor: "white", padding: 20 };
 
   const getData = async () => {
-    console.log("+++++++++++", session);
     try {
       const response = await axios.post(
         `${Constant.API_URL}item/getItem`,
@@ -51,19 +49,14 @@ export default function Page() {
         }
       );
       setRatings(response1.data);
-      // console.log(response.data, typeof response.data);
-      // return response.data;
     } catch (error) {
       console.error(error);
     }
   };
 
-  //on first fetch data.
   useEffect(() => {
     getData();
   }, []);
-
-  console.log("+++++++++++++++", data, ratings);
 
   const renderItem = ({ item, index }) => {
     return (
@@ -80,7 +73,7 @@ export default function Page() {
         <View style={{ flex: 1 }}>
           <View style={{ flex: 1, alignItems: "center" }}>
             <Avatar.Image
-              style={{ margin: 5, marginTop:20 }}
+              style={{ margin: 5, marginTop: 20 }}
               size={300}
               source={{ uri: data.item.image }}
             />
@@ -91,21 +84,35 @@ export default function Page() {
             <View
               style={{
                 flexDirection: "row",
-                marginTop:10, 
+                marginTop: 10,
               }}
             >
-              <View style={{ display:"flex", flexDirection:"column", justifyContent:"center" }}>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
                 <Text
                   color="#000000"
                   style={{
-                    fontSize:20,
-                    fongWeight:"bold",
+                    fontSize: 20,
+                    fongWeight: "bold",
                   }}
                 >
                   {data.item.rating}
                 </Text>
               </View>
-              <View style={{ alignItems: "center", display:"flex", flexDirection:"column", justifyContent:"center", marginLeft:10 }}>
+              <View
+                style={{
+                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  marginLeft: 10,
+                }}
+              >
                 <AirbnbRating
                   count={5}
                   defaultRating={data.item.rating}
@@ -120,15 +127,22 @@ export default function Page() {
             style={{
               borderColor: "black",
               borderWidth: 1,
-              display:"flex",
-              flexDirection:"row",
-              paddingLeft:10,
-              paddingTop:10,
-              paddingBottom:10
+              display: "flex",
+              flexDirection: "row",
+              paddingLeft: 10,
+              paddingTop: 10,
+              paddingBottom: 10,
             }}
           >
-            <View style={{ display:"flex", flexDirection:"column", justifyContent:"center" , marginRight:10 }}>
-              <Text style={{ fontSize:16, fontWeight:'400' }}>Hello</Text>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                marginRight: 10,
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "400" }}>Hello</Text>
             </View>
             <View>
               <TouchableOpacity onPress={showModal}>
@@ -141,7 +155,7 @@ export default function Page() {
                   on
                 />
               </TouchableOpacity>
-             </View>
+            </View>
           </View>
           <View>
             <FlatList
