@@ -11,6 +11,7 @@ import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
 import { router } from "expo-router";
+import { AirbnbRating } from "react-native-ratings";
 
 const index = () => {
   const { session } = useSession();
@@ -95,6 +96,22 @@ const index = () => {
     return loading ? <ActivityIndicator style={styles.loader} /> : null;
   };
 
+  const ratingColor = (rating) => {
+    if (rating >= 4.5) {
+      return "#57e32c";
+    }
+    if (rating >= 4) {
+      return "#b7dd29";
+    }
+    if (rating >= 3) {
+      return "#ffe234";
+    }
+    if (rating >= 2) {
+      return "#ffa534";
+    }
+    return "#ff4545";
+  };
+
   const renderItem = ({ item, index }) => {
     return (
       <Card
@@ -117,21 +134,30 @@ const index = () => {
               {item.name}
             </Text>
             <Text style={{ color: "#666" }}> {item.description} </Text>
+            <View style={{ alignSelf: "flex-start" }}>
+              <AirbnbRating
+                count={5}
+                defaultRating={item.rating}
+                size={30}
+                showRating={false}
+                isDisabled={true}
+              />
+            </View>
           </View>
           <View style={{ justifyContent: "center" }}>
-            <ImageBackground
-              source={require("../../../assets/star.png")}
+            <View
               style={{
-                height: 80,
-                width: 80,
+                borderWidth: 5,
+                width: 60,
+                height: 60,
+                borderRadius: 50,
+                borderColor: ratingColor(item.rating),
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <View style={{ paddingTop: 5 }}>
-                <Text style={styles.text}>{item.rating}</Text>
-              </View>
-            </ImageBackground>
+              <Text style={styles.text}>{item.rating}</Text>
+            </View>
           </View>
         </View>
       </Card>
@@ -139,7 +165,7 @@ const index = () => {
   };
 
   return (
-    <View>
+    <View style={{ backgroundColor: "#697177" }}>
       <Searchbar
         placeholder="Search"
         onChangeText={searchData}
@@ -184,7 +210,7 @@ const styles = StyleSheet.create({
 
   text: {
     color: "black",
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
   },
 });
