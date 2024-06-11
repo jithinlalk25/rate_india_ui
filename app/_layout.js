@@ -1,11 +1,11 @@
 import { Slot } from "expo-router";
 import { SessionProvider } from "../ctx";
-import { PaperProvider } from "react-native-paper";
+import { DefaultTheme, PaperProvider } from "react-native-paper";
 
 export default function Root() {
   return (
     <SessionProvider>
-      <PaperProvider>
+      <PaperProvider theme={DefaultTheme}>
         <Slot />
       </PaperProvider>
     </SessionProvider>

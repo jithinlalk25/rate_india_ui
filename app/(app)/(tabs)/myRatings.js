@@ -1,6 +1,13 @@
-import { FlatList, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Avatar, Button, Card, IconButton, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Avatar,
+  Button,
+  Card,
+  IconButton,
+  Text,
+} from "react-native-paper";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
@@ -8,51 +15,53 @@ import { router } from "expo-router";
 import { AirbnbRating } from "react-native-ratings";
 
 const index = () => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const { session } = useSession();
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  const getRatingsByUser = async () => {
-    console.log("+++++++++++", session);
+  const getRatingsByUser = async (pageNumber = 1) => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+
+    const params = data.length > 0 ? { lastId: data.at(-1)._id } : {};
+
     try {
       const response = await axios.post(
         `${Constant.API_URL}rating/getRatingsByUser`,
-        {},
+        params,
         {
           headers: {
             token: session,
           },
         }
       );
-      setData(response.data);
-      console.log("==========", response.data);
-      // console.log(response.data, typeof response.data);
-      // return response.data;
+      const newData = response.data;
+      setData((prevData) => [...prevData, ...newData]);
+      setPage(pageNumber);
+      setHasMore(newData.length > 0);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  //on first fetch data.
   useEffect(() => {
     getRatingsByUser();
   }, []);
 
-  // return <View></View>;
-  // const renderItem = ({ item, index }) => {
-  //   return (
-  //     <View>
-  //       <Text>{item.itemId}</Text>
-  //       <Text>{item.rating}</Text>
-  //       <Text>{item.review}</Text>
-  //       <Button
-  //         mode="contained"
-  //         onPress={() => router.navigate(`/item/${item.itemId}`)}
-  //       >
-  //         Edit
-  //       </Button>
-  //     </View>
-  //   );
-  // };
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      getRatingsByUser(page + 1);
+    }
+  };
+
+  const renderFooter = () => {
+    return loading ? <ActivityIndicator style={styles.loader} /> : null;
+  };
 
   const renderItem = ({ item, index }) => {
     const date = new Date(item.createdAt);
@@ -64,7 +73,6 @@ const index = () => {
     return (
       <Card
         style={{
-          // backgroundColor: "white",
           marginLeft: 2,
           marginRight: 2,
           marginBottom: 2,
@@ -95,12 +103,6 @@ const index = () => {
                 isDisabled={true}
               />
             </View>
-            {/* <IconButton
-              icon="account"
-              iconColor="#000000"
-              size={10}
-              onPress={() => router.navigate(`/item/${item.item._id}`)}
-            /> */}
             <Button
               style={{}}
               icon="pen"
@@ -122,10 +124,19 @@ const index = () => {
           data={data}
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
         />
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  loader: {
+    marginVertical: 100,
+  },
+});
 
 export default index;

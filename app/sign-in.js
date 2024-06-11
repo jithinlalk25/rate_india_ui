@@ -13,7 +13,6 @@ async function sendOtp(phoneNumber, setOtpSend) {
       phoneNumber,
     });
     setOtpSend(true);
-    console.log(response);
   } catch (error) {
     console.error(error);
   }
@@ -25,7 +24,6 @@ async function verifyOtp(phoneNumber, otp, signIn, router) {
       phoneNumber,
       otp,
     });
-    console.log(response.data.token);
 
     signIn(response.data.token);
     router.replace("/");

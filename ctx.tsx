@@ -32,12 +32,9 @@ export function SessionProvider(props: React.PropsWithChildren) {
     <AuthContext.Provider
       value={{
         signIn: (token) => {
-          console.log("==========> signIn : ", token);
-          // Perform sign-in logic here
           setSession(token);
         },
         signOut: () => {
-          console.log("==========> signOut");
           setSession(null);
         },
         session,
