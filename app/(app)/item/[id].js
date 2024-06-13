@@ -1,10 +1,17 @@
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
 import {
+  ActivityIndicator,
   Avatar,
   Button,
   Card,
@@ -21,10 +28,58 @@ export default function Page() {
   const [data, setData] = useState(null);
   const [newReview, setNewReview] = useState("");
   const [newRating, setNewRating] = useState(0);
-  const [ratings, setRatings] = useState(null);
+  const [ratings, setRatings] = useState([]);
   const { session } = useSession();
-
   const [visible, setVisible] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const getRatingsByItem = async (pageNumber = 1) => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+
+    const params = { itemId: id };
+    if (ratings.length > 0) {
+      params["lastId"] = ratings.at(-1)._id;
+    }
+
+    try {
+      const response = await axios.post(
+        `${Constant.API_URL}rating/getRatingsByItem`,
+        params,
+        {
+          headers: {
+            token: session,
+          },
+        }
+      );
+
+      const newData = response.data;
+      setRatings((prevData) => [...prevData, ...newData]);
+      setPage(pageNumber);
+      setHasMore(newData.length > 0);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getRatingsByItem();
+  }, []);
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      getRatingsByItem(page + 1);
+    }
+  };
+
+  const renderFooter = () => {
+    return loading ? <ActivityIndicator style={styles.loader} /> : null;
+  };
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -35,7 +90,6 @@ export default function Page() {
     if (review) {
       params["review"] = review;
     }
-    console.log("============", params);
     try {
       const response = await axios.post(
         `${Constant.API_URL}rating/addRating`,
@@ -73,19 +127,6 @@ export default function Page() {
           setNewReview(response.data.userRating.review);
         }
       }
-
-      const response1 = await axios.post(
-        `${Constant.API_URL}rating/getRatingsByItem`,
-        {
-          itemId: id,
-        },
-        {
-          headers: {
-            token: session,
-          },
-        }
-      );
-      setRatings(response1.data);
     } catch (error) {
       console.error(error);
     }
@@ -105,8 +146,8 @@ export default function Page() {
     return (
       <View
         style={{
-          marginLeft: 2,
-          marginRight: 2,
+          marginLeft: 10,
+          marginRight: 10,
           paddingTop: 5,
         }}
       >
@@ -159,149 +200,153 @@ export default function Page() {
     return "gray";
   };
 
-  return (
-    <View style={{ flex: 1 }}>
-      {data && ratings && (
-        <View style={{ flex: 1 }}>
-          <Card
+  const HeaderComponent = () => (
+    <>
+      <Card
+        style={{
+          alignItems: "center",
+          backgroundColor: "white",
+          margin: 10,
+          flexShrink: 1,
+          padding: 10,
+        }}
+      >
+        <Avatar.Image
+          style={{
+            marginLeft: 10,
+            marginRight: 10,
+            marginBottom: 10,
+            alignSelf: "center",
+          }}
+          size={300}
+          source={{ uri: data.item.image }}
+        />
+        <Text
+          style={{
+            fontSize: 25,
+            fontWeight: "bold",
+            alignSelf: "center",
+          }}
+        >
+          {data.item.name}
+        </Text>
+        <Text
+          style={{
+            fontSize: 18,
+            alignSelf: "center",
+            color: "#00008B",
+            fontWeight: "bold",
+          }}
+        >
+          {data.item.description}
+        </Text>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "center",
+            marginTop: 10,
+            maxHeight: 60,
+          }}
+        >
+          <View
             style={{
-              alignItems: "center",
-              backgroundColor: "white",
-              margin: 10,
-              // height: 460,
-              flexShrink: 1,
-              padding: 10,
+              justifyContent: "center",
+              height: 60,
+              marginRight: 10,
             }}
           >
-            <Avatar.Image
-              style={{
-                marginLeft: 10,
-                marginRight: 10,
-                marginBottom: 10,
-                alignSelf: "center",
-              }}
-              size={300}
-              source={{ uri: data.item.image }}
-            />
-            <Text
-              style={{
-                fontSize: 25,
-                fontWeight: "bold",
-                alignSelf: "center",
-              }}
-            >
-              {data.item.name}
-            </Text>
-            <Text
-              style={{
-                fontSize: 18,
-                alignSelf: "center",
-                color: "#00008B",
-                fontWeight: "bold",
-              }}
-            >
-              {data.item.description}
-            </Text>
             <View
               style={{
-                flex: 1,
-                flexDirection: "row",
+                borderWidth: 5,
+                width: 60,
+                height: 60,
+                borderRadius: 50,
+                borderColor: ratingColor(data.item.rating),
+                alignItems: "center",
                 justifyContent: "center",
-                marginTop: 10,
-                maxHeight: 60,
               }}
             >
-              <View
+              <Text
                 style={{
-                  justifyContent: "center",
-                  height: 60,
-                  marginRight: 10,
+                  color: "black",
+                  fontSize: 25,
+                  fontWeight: "bold",
                 }}
               >
-                <View
-                  style={{
-                    borderWidth: 5,
-                    width: 60,
-                    height: 60,
-                    borderRadius: 50,
-                    borderColor: ratingColor(data.item.rating),
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "black",
-                      fontSize: 25,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {data.item.rating}
-                  </Text>
-                </View>
-              </View>
-              <Rating
-                style={{ height: 60, paddingBottom: 6 }}
-                size={40}
-                rating={data.item.rating}
-                disabled={true}
-                fillColor="gold"
-                spacing={6.6}
-              />
+                {data.item.rating}
+              </Text>
             </View>
-          </Card>
-
-          <Card
-            style={{
-              alignItems: "center",
-              backgroundColor: "white",
-              marginLeft: 10,
-              marginRight: 10,
-              marginBottom: 10,
-              padding: 10,
-              backgroundColor: "#5F8575",
-            }}
-          >
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", alignSelf: "center" }}
-            >
-              Your Rating
-            </Text>
-            <TouchableOpacity
-              onPress={showModal}
-              style={{ marginTop: 5, marginBottom: 5 }}
-            >
-              <Rating
-                size={30}
-                rating={data.userRating ? data.userRating.rating : 0}
-                disabled={true}
-                fillColor="gold"
-                spacing={5}
-              />
-            </TouchableOpacity>
-          </Card>
-          <Card
-            style={{
-              backgroundColor: "white",
-              marginLeft: 10,
-              marginRight: 10,
-              marginBottom: 10,
-              padding: 10,
-              backgroundColor: "#F0FFFF",
-            }}
-          >
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", alignSelf: "center" }}
-            >
-              All Ratings
-            </Text>
-            <FlatList
-              data={ratings}
-              renderItem={renderItem}
-              keyExtractor={(item) => item._id}
-            />
-          </Card>
+          </View>
+          <Rating
+            style={{ height: 60, paddingBottom: 6 }}
+            size={40}
+            rating={data.item.rating}
+            disabled={true}
+            fillColor="gold"
+            spacing={6.6}
+          />
         </View>
+      </Card>
+      <Card
+        style={{
+          alignItems: "center",
+          backgroundColor: "white",
+          marginLeft: 10,
+          marginRight: 10,
+          marginBottom: 10,
+          padding: 10,
+          backgroundColor: "#5F8575",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            alignSelf: "center",
+          }}
+        >
+          Your Rating
+        </Text>
+        <TouchableOpacity
+          onPress={showModal}
+          style={{ marginTop: 5, marginBottom: 5 }}
+        >
+          <Rating
+            size={30}
+            rating={data.userRating ? data.userRating.rating : 0}
+            disabled={true}
+            fillColor="gold"
+            spacing={5}
+          />
+        </TouchableOpacity>
+      </Card>
+      <Text
+        style={{
+          fontSize: 20,
+          fontWeight: "bold",
+          alignSelf: "center",
+        }}
+      >
+        All Ratings
+      </Text>
+    </>
+  );
+
+  return (
+    <View>
+      {data && (
+        <FlatList
+          ListHeaderComponent={HeaderComponent}
+          data={ratings}
+          renderItem={renderItem}
+          keyExtractor={(item) => item._id}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          ListHeaderComponentStyle={{ marginBottom: 10 }}
+          ListFooterComponentStyle={{ marginTop: 10 }}
+        />
       )}
       {data && (
         <Modal
@@ -367,3 +412,9 @@ export default function Page() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  loader: {
+    marginVertical: 100,
+  },
+});
