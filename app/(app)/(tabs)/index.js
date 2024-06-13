@@ -11,7 +11,7 @@ import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
 import { router } from "expo-router";
-import { AirbnbRating } from "react-native-ratings";
+import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
   const { session } = useSession();
@@ -109,7 +109,10 @@ const index = () => {
     if (rating >= 2) {
       return "#ffa534";
     }
-    return "#ff4545";
+    if (rating > 0) {
+      return "#ff4545";
+    }
+    return "gray";
   };
 
   const renderItem = ({ item, index }) => {
@@ -133,18 +136,19 @@ const index = () => {
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
               {item.name}
             </Text>
-            <Text style={{ color: "#666" }}> {item.description} </Text>
-            <View style={{ alignSelf: "flex-start" }}>
-              <AirbnbRating
-                count={5}
-                defaultRating={item.rating}
-                size={30}
-                showRating={false}
-                isDisabled={true}
-              />
-            </View>
+            <Text style={{ color: "#00008B", fontWeight: "bold" }}>
+              {item.description}
+            </Text>
+            <Rating
+              style={{ marginTop: 5 }}
+              size={30}
+              rating={item.rating}
+              disabled={true}
+              fillColor="gold"
+              spacing={5}
+            />
           </View>
-          <View style={{ justifyContent: "center" }}>
+          <View style={{ justifyContent: "center", marginLeft: 5 }}>
             <View
               style={{
                 borderWidth: 5,
@@ -165,7 +169,7 @@ const index = () => {
   };
 
   return (
-    <View style={{ backgroundColor: "#697177" }}>
+    <View style={{}}>
       <Searchbar
         placeholder="Search"
         onChangeText={searchData}
