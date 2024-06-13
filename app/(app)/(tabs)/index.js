@@ -11,7 +11,7 @@ import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
 import { router } from "expo-router";
-import { AirbnbRating } from "react-native-ratings";
+import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
   const { session } = useSession();
@@ -139,15 +139,14 @@ const index = () => {
             <Text style={{ color: "#00008B", fontWeight: "bold" }}>
               {item.description}
             </Text>
-            <View style={{ alignSelf: "flex-start" }}>
-              <AirbnbRating
-                count={5}
-                defaultRating={item.rating}
-                size={30}
-                showRating={false}
-                isDisabled={true}
-              />
-            </View>
+            <Rating
+              style={{ marginTop: 5 }}
+              size={30}
+              rating={item.rating}
+              disabled={true}
+              fillColor="gold"
+              spacing={5}
+            />
           </View>
           <View style={{ justifyContent: "center", marginLeft: 5 }}>
             <View

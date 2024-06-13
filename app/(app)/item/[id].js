@@ -12,7 +12,7 @@ import {
   Modal,
   TextInput,
 } from "react-native-paper";
-import { AirbnbRating } from "react-native-ratings";
+import { Rating } from "@kolking/react-native-rating";
 
 export default function Page() {
   const navigation = useNavigation();
@@ -121,18 +121,19 @@ export default function Page() {
           <Text style={{ fontWeight: "bold", marginRight: 5 }}>
             {item.rating}
           </Text>
-          <AirbnbRating
-            count={5}
-            defaultRating={item.rating}
+          <Rating
             size={15}
-            showRating={false}
-            isDisabled={true}
-            on
+            rating={item.rating}
+            disabled={true}
+            fillColor="gold"
+            spacing={2.5}
           />
           <View style={{ flex: 1 }}></View>
           <Text style={{ fontWeight: "bold" }}> {dateFormatted} </Text>
         </View>
-        <Text style={{ paddingLeft: 5, paddingRight: 5 }}>{item.review}</Text>
+        {item.review && (
+          <Text style={{ paddingLeft: 5, paddingRight: 5 }}>{item.review}</Text>
+        )}
 
         <Divider style={{ marginTop: 15 }} />
       </View>
@@ -159,32 +160,46 @@ export default function Page() {
   };
 
   return (
-    <View style={{}}>
+    <View style={{ flex: 1 }}>
       {data && ratings && (
-        <View style={{}}>
+        <View style={{ flex: 1 }}>
           <Card
             style={{
               alignItems: "center",
               backgroundColor: "white",
               margin: 10,
-              height: 460,
+              // height: 460,
+              flexShrink: 1,
+              padding: 10,
             }}
           >
             <Avatar.Image
-              style={{ margin: 10 }}
+              style={{
+                marginLeft: 10,
+                marginRight: 10,
+                marginBottom: 10,
+                alignSelf: "center",
+              }}
               size={300}
               source={{ uri: data.item.image }}
             />
             <Text
               style={{
-                fontSize: 20,
+                fontSize: 25,
                 fontWeight: "bold",
                 alignSelf: "center",
               }}
             >
               {data.item.name}
             </Text>
-            <Text style={{ fontSize: 18, alignSelf: "center" }}>
+            <Text
+              style={{
+                fontSize: 18,
+                alignSelf: "center",
+                color: "#00008B",
+                fontWeight: "bold",
+              }}
+            >
               {data.item.description}
             </Text>
             <View
@@ -193,6 +208,7 @@ export default function Page() {
                 flexDirection: "row",
                 justifyContent: "center",
                 marginTop: 10,
+                maxHeight: 60,
               }}
             >
               <View
@@ -224,15 +240,14 @@ export default function Page() {
                   </Text>
                 </View>
               </View>
-              <View style={{ height: 60, justifyContent: "center" }}>
-                <AirbnbRating
-                  count={5}
-                  defaultRating={5} //{data.item.rating}
-                  size={40}
-                  showRating={false}
-                  isDisabled={true}
-                />
-              </View>
+              <Rating
+                style={{ height: 60, paddingBottom: 6 }}
+                size={40}
+                rating={data.item.rating}
+                disabled={true}
+                fillColor="gold"
+                spacing={6.6}
+              />
             </View>
           </Card>
 
@@ -252,13 +267,16 @@ export default function Page() {
             >
               Your Rating
             </Text>
-            <TouchableOpacity onPress={showModal}>
-              <AirbnbRating
-                count={5}
-                defaultRating={data.userRating ? data.userRating.rating : 0}
+            <TouchableOpacity
+              onPress={showModal}
+              style={{ marginTop: 5, marginBottom: 5 }}
+            >
+              <Rating
                 size={30}
-                showRating={false}
-                isDisabled={true}
+                rating={data.userRating ? data.userRating.rating : 0}
+                disabled={true}
+                fillColor="gold"
+                spacing={5}
               />
             </TouchableOpacity>
           </Card>
@@ -304,12 +322,13 @@ export default function Page() {
             <Text style={{ marginBottom: 10, fontSize: 25 }}>
               Rate <Text style={{ fontWeight: "bold" }}>{data.item.name}</Text>
             </Text>
-            <AirbnbRating
-              count={5}
-              defaultRating={newRating}
-              onFinishRating={setNewRating}
+            <Rating
               size={30}
-              showRating={false}
+              rating={newRating}
+              touchColor="gold"
+              fillColor="gold"
+              spacing={5}
+              onChange={setNewRating}
             />
             <TextInput
               style={{ width: "100%", marginTop: 10 }}

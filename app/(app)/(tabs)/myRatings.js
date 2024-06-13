@@ -5,14 +5,13 @@ import {
   Avatar,
   Button,
   Card,
-  IconButton,
   Text,
 } from "react-native-paper";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
 import { router } from "expo-router";
-import { AirbnbRating } from "react-native-ratings";
+import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
   const [data, setData] = useState([]);
@@ -94,15 +93,13 @@ const index = () => {
             <Text style={{ fontWeight: "bold" }}> {dateFormatted} </Text>
           </View>
           <View style={{ justifyContent: "center" }}>
-            <View style={{}}>
-              <AirbnbRating
-                count={5}
-                defaultRating={item.rating}
-                size={20}
-                showRating={false}
-                isDisabled={true}
-              />
-            </View>
+            <Rating
+              size={20}
+              rating={item.rating}
+              disabled={true}
+              fillColor="gold"
+              spacing={3.3}
+            />
             <Button
               style={{}}
               icon="pen"
