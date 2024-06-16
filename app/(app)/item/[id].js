@@ -1,12 +1,6 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
@@ -16,6 +10,7 @@ import {
   Button,
   Card,
   Divider,
+  IconButton,
   Modal,
   TextInput,
 } from "react-native-paper";
@@ -98,6 +93,23 @@ export default function Page() {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const containerStyle = { backgroundColor: "white", padding: 20 };
+
+  const deleteRating = async (itemId) => {
+    try {
+      const response = await axios.post(
+        `${Constant.API_URL}rating/deleteRating`,
+        { itemId },
+        {
+          headers: {
+            token: session,
+          },
+        }
+      );
+      refreshComponent();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const addRating = async (itemId, rating, review) => {
     setModalLoading(true);
@@ -185,7 +197,7 @@ export default function Page() {
             rating={item.rating}
             disabled={true}
             fillColor="gold"
-            spacing={2.5}
+            spacing={2.25}
           />
           <View style={{ flex: 1 }}></View>
           <Text style={{ fontWeight: "bold" }}> {dateFormatted} </Text>
@@ -223,7 +235,7 @@ export default function Page() {
       <Card
         style={{
           alignItems: "center",
-          backgroundColor: "white",
+          backgroundColor: "#F0F0F0",
           margin: 10,
           flexShrink: 1,
           padding: 10,
@@ -233,15 +245,15 @@ export default function Page() {
           style={{
             marginLeft: 10,
             marginRight: 10,
-            marginBottom: 10,
+            marginBottom: 5,
             alignSelf: "center",
           }}
-          size={300}
+          size={200}
           source={{ uri: data.item.image }}
         />
         <Text
           style={{
-            fontSize: 25,
+            fontSize: 22,
             fontWeight: "bold",
             alignSelf: "center",
           }}
@@ -250,7 +262,7 @@ export default function Page() {
         </Text>
         <Text
           style={{
-            fontSize: 18,
+            fontSize: 15,
             alignSelf: "center",
             color: "#00008B",
             fontWeight: "bold",
@@ -264,21 +276,21 @@ export default function Page() {
             flexDirection: "row",
             justifyContent: "center",
             marginTop: 10,
-            maxHeight: 60,
+            maxHeight: 50,
           }}
         >
           <View
             style={{
               justifyContent: "center",
-              height: 60,
+              height: 50,
               marginRight: 10,
             }}
           >
             <View
               style={{
-                borderWidth: 5,
-                width: 60,
-                height: 60,
+                borderWidth: 4,
+                width: 50,
+                height: 50,
                 borderRadius: 50,
                 borderColor: ratingColor(data.item.rating),
                 alignItems: "center",
@@ -297,57 +309,149 @@ export default function Page() {
             </View>
           </View>
           <Rating
-            style={{ height: 60, paddingBottom: 6 }}
-            size={40}
+            style={{ height: 50, paddingBottom: 6 }}
+            size={30}
             rating={data.item.rating}
             disabled={true}
             fillColor="gold"
-            spacing={6.6}
+            spacing={4.5}
           />
         </View>
       </Card>
-      <Card
-        style={{
-          alignItems: "center",
-          backgroundColor: "white",
-          marginLeft: 10,
-          marginRight: 10,
-          marginBottom: 10,
-          padding: 10,
-          backgroundColor: "#5F8575",
-        }}
-      >
+      {data.userRating ? (
+        <Card
+          style={{
+            marginLeft: 10,
+            marginRight: 10,
+            marginBottom: 10,
+            paddingTop: 5,
+            paddingLeft: 15,
+            paddingRight: 15,
+
+            backgroundColor: "#5F855F",
+          }}
+        >
+          <View style={{ flexDirection: "row" }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+
+                paddingTop: 8,
+                color: "white",
+              }}
+            >
+              Your Rating
+            </Text>
+            <View style={{ flex: 1 }}></View>
+
+            <IconButton
+              icon="pencil"
+              size={20}
+              iconColor="white"
+              style={{ padding: 0, margin: 0 }}
+              onPress={showModal}
+            />
+
+            <IconButton
+              icon="delete"
+              iconColor="white"
+              size={20}
+              style={{ padding: 0, margin: 0 }}
+              onPress={() => {
+                Alert.alert("Delete", "Are you sure to delete your rating?", [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Yes",
+                    onPress: () => {
+                      deleteRating(data.item._id);
+                    },
+                  },
+                ]);
+              }}
+            />
+          </View>
+          <Rating
+            style={{ marginTop: 5 }}
+            size={30}
+            rating={data.userRating.rating}
+            disabled={true}
+            fillColor="gold"
+            spacing={4.5}
+          />
+          {data.userRating?.review && (
+            <Text
+              style={{
+                marginTop: 10,
+                fontSize: 15,
+                color: "#E1E1E1",
+              }}
+            >
+              {data.userRating.review}
+            </Text>
+          )}
+          <View
+            style={{
+              flexDirection: "row",
+              marginTop: 10,
+              marginBottom: 10,
+            }}
+          ></View>
+        </Card>
+      ) : (
+        <Card
+          style={{
+            alignItems: "center",
+            marginLeft: 10,
+            marginRight: 10,
+            marginBottom: 10,
+            paddingTop: 5,
+            paddingLeft: 15,
+            paddingRight: 15,
+            paddingBottom: 15,
+            backgroundColor: "#5F855F",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              alignSelf: "center",
+              paddingTop: 8,
+              color: "white",
+            }}
+          >
+            Give your Rating
+          </Text>
+          <Rating
+            style={{ marginTop: 10, marginBottom: 5 }}
+            size={30}
+            rating={0}
+            touchColor="gold"
+            fillColor="gold"
+            onChange={(rating) => {
+              setNewRating(rating);
+              showModal();
+            }}
+            spacing={4.5}
+          />
+        </Card>
+      )}
+      {ratings?.length > 0 && (
         <Text
           style={{
             fontSize: 20,
             fontWeight: "bold",
-            alignSelf: "center",
+            marginLeft: 10,
+            color: "#454545",
           }}
         >
-          Your Rating
+          All Ratings
         </Text>
-        <TouchableOpacity
-          onPress={showModal}
-          style={{ marginTop: 5, marginBottom: 5 }}
-        >
-          <Rating
-            size={30}
-            rating={data.userRating ? data.userRating.rating : 0}
-            disabled={true}
-            fillColor="gold"
-            spacing={5}
-          />
-        </TouchableOpacity>
-      </Card>
-      <Text
-        style={{
-          fontSize: 20,
-          fontWeight: "bold",
-          alignSelf: "center",
-        }}
-      >
-        All Ratings
-      </Text>
+      )}
     </>
   );
 
@@ -390,7 +494,7 @@ export default function Page() {
               rating={newRating}
               touchColor="gold"
               fillColor="gold"
-              spacing={5}
+              spacing={4.5}
               onChange={setNewRating}
             />
             <TextInput
