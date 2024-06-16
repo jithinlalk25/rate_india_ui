@@ -22,6 +22,8 @@ import {
 import { Rating } from "@kolking/react-native-rating";
 
 export default function Page() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
 
@@ -34,6 +36,18 @@ export default function Page() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const refreshComponent = () => {
+    setData(null);
+    setNewRating(0);
+    setNewReview("");
+    setRatings([]);
+    setPage(1);
+    setLoading(false);
+    setHasMore(true);
+    setRefreshKey(refreshKey + 1);
+  };
 
   const getRatingsByItem = async (pageNumber = 1) => {
     if (loading || !hasMore) return;
@@ -69,7 +83,7 @@ export default function Page() {
 
   useEffect(() => {
     getRatingsByItem();
-  }, []);
+  }, [refreshKey]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -86,6 +100,7 @@ export default function Page() {
   const containerStyle = { backgroundColor: "white", padding: 20 };
 
   const addRating = async (itemId, rating, review) => {
+    setModalLoading(true);
     const params = { itemId, rating };
     if (review) {
       params["review"] = review;
@@ -101,8 +116,11 @@ export default function Page() {
         }
       );
       hideModal();
+      refreshComponent();
     } catch (error) {
       console.error(error);
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -134,7 +152,7 @@ export default function Page() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [refreshKey]);
 
   const renderItem = ({ item, index }) => {
     const date = new Date(item.createdAt);
@@ -390,21 +408,26 @@ export default function Page() {
                 marginTop: 10,
               }}
             >
-              <Button mode="text" onPress={hideModal}>
-                Cancel
-              </Button>
-              <Button
-                mode="contained"
-                onPress={() =>
-                  addRating(
-                    data.item._id,
-                    newRating,
-                    newReview.trim().length > 0 ? newReview.trim() : null
-                  )
-                }
-              >
-                Save
-              </Button>
+              {modalLoading && <ActivityIndicator />}
+              {!modalLoading && (
+                <Button mode="text" onPress={hideModal}>
+                  Cancel
+                </Button>
+              )}
+              {!modalLoading && (
+                <Button
+                  mode="contained"
+                  onPress={() =>
+                    addRating(
+                      data.item._id,
+                      newRating,
+                      newReview.trim().length > 0 ? newReview.trim() : null
+                    )
+                  }
+                >
+                  Save
+                </Button>
+              )}
             </View>
           </View>
         </Modal>
