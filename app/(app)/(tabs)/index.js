@@ -1,4 +1,4 @@
-import { FlatList, ImageBackground, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -121,39 +121,59 @@ const index = () => {
         onPress={() => router.navigate(`/item/${item._id}`)}
         style={{
           backgroundColor: "white",
-          marginLeft: 10,
-          marginRight: 10,
-          marginBottom: 10,
+          marginLeft: 5,
+          marginRight: 5,
+          marginBottom: 5,
+          // height: 80,
+          // backgroundColor: "yellow",
         }}
       >
-        <View style={{ flex: 1, flexDirection: "row", padding: 10 }}>
+        <View
+          style={{
+            // backgroundColor: "blue",
+            flex: 1,
+            flexDirection: "row",
+            padding: 5,
+          }}
+        >
           <Avatar.Image
-            style={{ margin: 5 }}
-            size={80}
+            style={{ margin: 2 }}
+            size={66}
             source={{ uri: item.image }}
           />
-          <View style={{ flex: 1, justifyContent: "center", marginLeft: 5 }}>
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+          <View
+            style={{
+              // backgroundColor: "black",
+              flex: 1,
+              justifyContent: "center",
+              marginLeft: 5,
+            }}
+          >
+            <Text style={{ fontSize: 15, fontWeight: "bold" }}>
               {item.name}
             </Text>
-            <Text style={{ color: "#00008B", fontWeight: "bold" }}>
+            <Text
+              style={{ fontSize: 12, color: "#00008B", fontWeight: "bold" }}
+            >
               {item.description}
             </Text>
             <Rating
-              style={{ marginTop: 5 }}
-              size={30}
+              style={{ marginTop: 3 }}
+              size={20}
               rating={item.rating}
               disabled={true}
               fillColor="gold"
-              spacing={5}
+              spacing={3}
             />
           </View>
-          <View style={{ justifyContent: "center", marginLeft: 5 }}>
+          <View
+            style={{ justifyContent: "center", marginLeft: 5, marginRight: 5 }}
+          >
             <View
               style={{
-                borderWidth: 5,
-                width: 60,
-                height: 60,
+                borderWidth: 3,
+                width: 45,
+                height: 45,
                 borderRadius: 50,
                 borderColor: ratingColor(item.rating),
                 alignItems: "center",
@@ -214,7 +234,7 @@ const styles = StyleSheet.create({
 
   text: {
     color: "black",
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: "bold",
   },
 });
