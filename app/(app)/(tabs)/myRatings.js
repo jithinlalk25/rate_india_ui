@@ -1,4 +1,10 @@
-import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
+import {
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -82,64 +88,60 @@ const index = () => {
       day: "numeric",
     });
     return (
-      <Card
-        style={{
-          marginLeft: 2,
-          marginRight: 2,
-          marginBottom: 2,
-          borderColor: "black",
-          borderWidth: 0.5,
-        }}
+      <TouchableOpacity
+        onPress={() => router.navigate(`/item/${item.item._id}`)}
       >
-        <View style={{ flex: 1, flexDirection: "row", padding: 3 }}>
-          <Avatar.Image
-            style={{ margin: 5 }}
-            size={55}
-            source={{ uri: item.item.image }}
-          />
-          <View style={{ flex: 1, justifyContent: "center", marginLeft: 5 }}>
-            <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-              {item.item.name}
-            </Text>
-            <Text style={{ color: "#666", fontSize: 12 }}>
-              {item.item.description}
-            </Text>
-            <Text style={{ fontWeight: "bold", fontSize: 12 }}>
-              {dateFormatted}
-            </Text>
-          </View>
-          <View
-            style={{
-              justifyContent: "center",
-              marginRight: 5,
-              alignItems: "center",
-            }}
-          >
-            <Rating
-              size={15}
-              rating={item.rating}
-              disabled={true}
-              fillColor="gold"
-              spacing={2.25}
+        <Card
+          style={{
+            marginLeft: 2,
+            marginRight: 2,
+            marginBottom: 2,
+            borderColor: "black",
+            borderWidth: 0.5,
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: "row", padding: 3 }}>
+            <Avatar.Image
+              style={{ margin: 5 }}
+              size={55}
+              source={{ uri: item.item.image }}
             />
-            {/* <Button
-              style={{}}
-              icon="pencil"
-              mode="text"
-              onPress={() => router.navigate(`/item/${item.item._id}`)}
+            <View style={{ flex: 1, justifyContent: "center", marginLeft: 5 }}>
+              <Text style={{ fontSize: 15, fontWeight: "bold" }}>
+                {item.item.name}
+              </Text>
+              <Text style={{ color: "#666", fontSize: 12 }}>
+                {item.item.description}
+              </Text>
+              <Text style={{ fontWeight: "bold", fontSize: 12 }}>
+                {dateFormatted}
+              </Text>
+            </View>
+            <View
+              style={{
+                justifyContent: "center",
+                marginRight: 5,
+                alignItems: "center",
+              }}
             >
-              Edit
-            </Button> */}
-            <IconButton
+              <Rating
+                size={15}
+                rating={item.rating}
+                disabled={true}
+                fillColor="gold"
+                spacing={2.25}
+              />
+              {/* <IconButton
               icon="pencil"
               size={20}
               iconColor="darkblue"
               style={{ padding: 0, margin: 0 }}
               onPress={() => router.navigate(`/item/${item.item._id}`)}
-            />
+            /> */}
+            </View>
           </View>
-        </View>
-      </Card>
+        </Card>
+      </TouchableOpacity>
     );
   };
 
