@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -23,6 +23,18 @@ const index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setsearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setData([]);
+    setPage(1);
+    setLoading(false);
+    setHasMore(true);
+    setRefreshKey(refreshKey + 1);
+    setRefreshing(false);
+  };
 
   const searchData = async (text) => {
     setSearchQuery(text);
@@ -84,7 +96,7 @@ const index = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [refreshKey]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -124,13 +136,10 @@ const index = () => {
           marginLeft: 5,
           marginRight: 5,
           marginBottom: 5,
-          // height: 80,
-          // backgroundColor: "yellow",
         }}
       >
         <View
           style={{
-            // backgroundColor: "blue",
             flex: 1,
             flexDirection: "row",
             padding: 5,
@@ -143,7 +152,6 @@ const index = () => {
           />
           <View
             style={{
-              // backgroundColor: "black",
               flex: 1,
               justifyContent: "center",
               marginLeft: 5,
@@ -204,6 +212,9 @@ const index = () => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
       {searchResult && searchQuery.trim().length >= 3 && (

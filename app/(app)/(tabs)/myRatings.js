@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -19,6 +19,18 @@ const index = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setData([]);
+    setPage(1);
+    setLoading(false);
+    setHasMore(true);
+    setRefreshKey(refreshKey + 1);
+    setRefreshing(false);
+  };
 
   const getRatingsByUser = async (pageNumber = 1) => {
     if (loading || !hasMore) return;
@@ -50,7 +62,7 @@ const index = () => {
 
   useEffect(() => {
     getRatingsByUser();
-  }, []);
+  }, [refreshKey]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -141,6 +153,9 @@ const index = () => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
     </View>
