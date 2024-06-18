@@ -129,15 +129,9 @@ const index = () => {
                 rating={item.rating}
                 disabled={true}
                 fillColor="gold"
+                baseColor="lightgray"
                 spacing={2.25}
               />
-              {/* <IconButton
-              icon="pencil"
-              size={20}
-              iconColor="darkblue"
-              style={{ padding: 0, margin: 0 }}
-              onPress={() => router.navigate(`/item/${item.item._id}`)}
-            /> */}
             </View>
           </View>
         </Card>

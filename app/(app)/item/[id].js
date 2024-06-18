@@ -197,6 +197,7 @@ export default function Page() {
             rating={item.rating}
             disabled={true}
             fillColor="gold"
+            baseColor="lightgray"
             spacing={2.25}
           />
           <View style={{ flex: 1 }}></View>
@@ -314,6 +315,7 @@ export default function Page() {
             rating={data.item.rating}
             disabled={true}
             fillColor="gold"
+            baseColor="lightgray"
             spacing={4.5}
           />
         </View>
@@ -380,6 +382,7 @@ export default function Page() {
             rating={data.userRating.rating}
             disabled={true}
             fillColor="gold"
+            baseColor="lightgray"
             spacing={4.5}
           />
           {data.userRating?.review && (
@@ -431,6 +434,7 @@ export default function Page() {
             size={30}
             rating={0}
             touchColor="gold"
+            baseColor="lightgray"
             fillColor="gold"
             onChange={(rating) => {
               setNewRating(rating);
@@ -493,6 +497,7 @@ export default function Page() {
               size={30}
               rating={newRating}
               touchColor="gold"
+              baseColor="lightgray"
               fillColor="gold"
               spacing={4.5}
               onChange={setNewRating}

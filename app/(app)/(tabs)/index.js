@@ -171,6 +171,7 @@ const index = () => {
               rating={item.rating}
               disabled={true}
               fillColor="gold"
+              baseColor="lightgray"
               spacing={3}
             />
           </View>
