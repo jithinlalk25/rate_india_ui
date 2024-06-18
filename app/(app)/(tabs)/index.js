@@ -1,5 +1,5 @@
-import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, View } from "react-native";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Avatar,
@@ -10,7 +10,7 @@ import {
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
@@ -23,18 +23,6 @@ const index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setsearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    setData([]);
-    setPage(1);
-    setLoading(false);
-    setHasMore(true);
-    setRefreshKey(refreshKey + 1);
-    setRefreshing(false);
-  };
 
   const searchData = async (text) => {
     setSearchQuery(text);
@@ -94,9 +82,17 @@ const index = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [refreshKey]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+      return () => {
+        setData([]);
+        setPage(1);
+        setLoading(false);
+        setHasMore(true);
+      };
+    }, [])
+  );
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -213,9 +209,6 @@ const index = () => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
         />
       )}
       {searchResult && searchQuery.trim().length >= 3 && (

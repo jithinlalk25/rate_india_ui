@@ -1,22 +1,10 @@
-import {
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Avatar,
-  Card,
-  IconButton,
-  Text,
-} from "react-native-paper";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useState } from "react";
+import { ActivityIndicator, Avatar, Card, Text } from "react-native-paper";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
@@ -25,18 +13,18 @@ const index = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    setData([]);
-    setPage(1);
-    setLoading(false);
-    setHasMore(true);
-    setRefreshKey(refreshKey + 1);
-    setRefreshing(false);
-  };
+  useFocusEffect(
+    useCallback(() => {
+      getRatingsByUser();
+      return () => {
+        setData([]);
+        setPage(1);
+        setLoading(false);
+        setHasMore(true);
+      };
+    }, [])
+  );
 
   const getRatingsByUser = async (pageNumber = 1) => {
     if (loading || !hasMore) return;
@@ -65,10 +53,6 @@ const index = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    getRatingsByUser();
-  }, [refreshKey]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -124,6 +108,9 @@ const index = () => {
                 alignItems: "center",
               }}
             >
+              <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+                {item.rating}
+              </Text>
               <Rating
                 size={15}
                 rating={item.rating}
@@ -149,9 +136,6 @@ const index = () => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
         />
       )}
     </View>
