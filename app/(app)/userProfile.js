@@ -60,37 +60,41 @@ const userProfile = () => {
         paddingLeft: 20,
         paddingRight: 20,
         flex: 1,
-        justifyContent: "center",
+        justifyContent: "space-between",
         alignItems: "center",
       }}
     >
-      <View
-        style={{
-          paddingTop: 10,
-          paddingBottom: 10,
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-        }}
-      >
-        {loading || !data ? (
-          <ActivityIndicator style={{ height: 30 }} />
-        ) : (
-          <Text style={{ fontSize: 30, fontWeight: "bold" }}>
-            {data.phoneNumber}
-          </Text>
-        )}
+      <View></View>
+      <View>
+        <View
+          style={{
+            paddingTop: 10,
+            paddingBottom: 10,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        >
+          {loading || !data ? (
+            <ActivityIndicator style={{ height: 30 }} />
+          ) : (
+            <Text style={{ fontSize: 30, fontWeight: "bold" }}>
+              {data.phoneNumber}
+            </Text>
+          )}
+        </View>
+        <Button
+          mode="outlined"
+          onPress={() => {
+            logout();
+            signOut();
+          }}
+          style={{ width: 100, alignSelf: "center" }}
+        >
+          Logout
+        </Button>
       </View>
-      <Button
-        mode="outlined"
-        onPress={() => {
-          logout();
-          signOut();
-        }}
-        style={{ width: 100 }}
-      >
-        Logout
-      </Button>
+      <Text>App Version: {Constant.APP_VERSION}</Text>
     </View>
   );
 };

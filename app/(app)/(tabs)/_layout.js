@@ -1,6 +1,6 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { router, Tabs } from "expo-router";
-import { Avatar, Button, IconButton } from "react-native-paper";
+import { IconButton } from "react-native-paper";
 
 export default function TabLayout() {
   return (
