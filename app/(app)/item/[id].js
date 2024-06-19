@@ -26,7 +26,7 @@ export default function Page() {
   const [newReview, setNewReview] = useState("");
   const [newRating, setNewRating] = useState(0);
   const [ratings, setRatings] = useState([]);
-  const { session } = useSession();
+  const { session, signOut } = useSession();
   const [visible, setVisible] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -71,6 +71,9 @@ export default function Page() {
       setHasMore(newData.length > 0);
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     } finally {
       setLoading(false);
     }
@@ -108,6 +111,9 @@ export default function Page() {
       refreshComponent();
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     }
   };
 
@@ -131,6 +137,9 @@ export default function Page() {
       refreshComponent();
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     } finally {
       setModalLoading(false);
     }
@@ -159,6 +168,9 @@ export default function Page() {
       }
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     }
   };
 

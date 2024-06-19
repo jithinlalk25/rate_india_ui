@@ -24,6 +24,9 @@ const userProfile = () => {
       );
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     }
   };
 
@@ -38,6 +41,9 @@ const userProfile = () => {
       setData(response.data);
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     }
     setLoading(false);
   };

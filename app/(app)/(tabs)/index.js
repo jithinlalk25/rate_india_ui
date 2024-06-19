@@ -14,7 +14,7 @@ import { router, useFocusEffect } from "expo-router";
 import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
-  const { session } = useSession();
+  const { session, signOut } = useSession();
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -47,6 +47,9 @@ const index = () => {
       setsearchResult(response.data);
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     } finally {
       setSearchLoading(false);
     }
@@ -76,6 +79,9 @@ const index = () => {
       setPage(pageNumber);
       setHasMore(newData.length > 0);
     } catch (error) {
+      if (error.response.status == 401) {
+        signOut();
+      }
       console.error(error);
     } finally {
       setLoading(false);

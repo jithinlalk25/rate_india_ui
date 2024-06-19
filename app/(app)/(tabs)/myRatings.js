@@ -9,7 +9,7 @@ import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
   const [data, setData] = useState([]);
-  const { session } = useSession();
+  const { session, signOut } = useSession();
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -49,6 +49,9 @@ const index = () => {
       setHasMore(newData.length > 0);
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     } finally {
       setLoading(false);
     }
