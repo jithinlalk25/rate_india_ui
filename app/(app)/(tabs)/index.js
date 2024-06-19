@@ -1,8 +1,9 @@
 import { FlatList, StyleSheet, View } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Avatar,
+  Banner,
   Card,
   Searchbar,
   Text,
@@ -12,6 +13,7 @@ import axios from "axios";
 import { Constant } from "../../../constants";
 import { router, useFocusEffect } from "expo-router";
 import { Rating } from "@kolking/react-native-rating";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const index = () => {
   const { session, signOut } = useSession();
@@ -23,6 +25,33 @@ const index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setsearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [bannerVisible, setBannerVisible] = React.useState(null);
+
+  const getStorageData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("bannerVisible");
+      if (value == "false") {
+        setBannerVisible(false);
+      } else {
+        setBannerVisible(true);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const setStorageData = async () => {
+    try {
+      await AsyncStorage.setItem("bannerVisible", "false");
+      setBannerVisible(false);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    getStorageData();
+  }, []);
 
   const searchData = async (text) => {
     setSearchQuery(text);
@@ -201,6 +230,20 @@ const index = () => {
 
   return (
     <View style={{}}>
+      {bannerVisible != null && (
+        <Banner
+          visible={bannerVisible}
+          actions={[
+            {
+              label: "Okay",
+              onPress: () => setStorageData(),
+            },
+          ]}
+        >
+          Currently members of KERALA LEGISLATIVE ASSEMBLY is listed. Will be
+          adding all public figures in India soon.
+        </Banner>
+      )}
       <Searchbar
         placeholder="Search"
         onChangeText={searchData}
