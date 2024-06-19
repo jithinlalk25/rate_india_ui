@@ -130,7 +130,7 @@ const index = () => {
   };
 
   return (
-    <View style={{ paddingTop: 2 }}>
+    <View style={{ paddingTop: 2, paddingBottom: 80 }}>
       {data && (
         <FlatList
           data={data}

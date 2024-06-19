@@ -229,7 +229,7 @@ const index = () => {
   };
 
   return (
-    <View style={{}}>
+    <View style={{ paddingBottom: 80 }}>
       {bannerVisible != null && (
         <Banner
           visible={bannerVisible}
