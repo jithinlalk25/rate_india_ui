@@ -1,21 +1,47 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, Linking, StyleSheet, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Avatar,
   Banner,
+  Button,
   Card,
+  Dialog,
+  IconButton,
+  Portal,
   Searchbar,
   Text,
 } from "react-native-paper";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useNavigation } from "expo-router";
 import { Rating } from "@kolking/react-native-rating";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const index = () => {
+  const navigation = useNavigation();
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: "row" }}>
+          <IconButton
+            icon="alert-octagon"
+            iconColor="darkblue"
+            size={35}
+            onPress={() => setDialogVisible(true)}
+          />
+          <IconButton
+            icon="account-circle"
+            iconColor="#000000"
+            size={35}
+            onPress={() => router.navigate(`/userProfile`)}
+          />
+        </View>
+      ),
+    });
+  }, []);
+
   const { session, signOut } = useSession();
 
   const [data, setData] = useState([]);
@@ -25,7 +51,8 @@ const index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setsearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [bannerVisible, setBannerVisible] = React.useState(null);
+  const [bannerVisible, setBannerVisible] = useState(null);
+  const [dialogVisible, setDialogVisible] = useState(false);
 
   const getStorageData = async () => {
     try {
@@ -35,9 +62,19 @@ const index = () => {
       } else {
         setBannerVisible(true);
       }
+
+      const dialogVisible = await AsyncStorage.getItem("dialogVisible");
+      if (dialogVisible != "false") {
+        setDialogVisible(true);
+      }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const hideDialog = async () => {
+    await AsyncStorage.setItem("dialogVisible", "false");
+    setDialogVisible(false);
   };
 
   const setStorageData = async () => {
@@ -230,6 +267,31 @@ const index = () => {
 
   return (
     <View style={{ paddingBottom: 80 }}>
+      <Portal>
+        <Dialog visible={dialogVisible} dismissable={false}>
+          <Dialog.Title style={styles.title}>Disclaimer</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              This app does not represent any government entity. The information
+              provided is sourced from the websites given below. It is not
+              officially endorsed or authorized. {"\n\n"}•{" "}
+              <Text
+                style={{ color: "blue", textDecorationLine: "underline" }}
+                onPress={() =>
+                  Linking.openURL(
+                    "http://www.niyamasabha.org/codes/members.htm"
+                  )
+                }
+              >
+                http://www.niyamasabha.org/codes/members.htm
+              </Text>
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={hideDialog}>Okay</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
       {bannerVisible != null && (
         <Banner
           visible={bannerVisible}
