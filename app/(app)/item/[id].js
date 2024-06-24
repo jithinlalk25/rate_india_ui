@@ -321,15 +321,20 @@ export default function Page() {
               </Text>
             </View>
           </View>
-          <Rating
-            style={{ height: 50, paddingBottom: 6 }}
-            size={30}
-            rating={data.item.rating}
-            disabled={true}
-            fillColor="gold"
-            baseColor="lightgray"
-            spacing={4.5}
-          />
+          <View style={{ height: 50, paddingBottom: 6 }}>
+            <Rating
+              style={{}}
+              size={30}
+              rating={data.item.rating}
+              disabled={true}
+              fillColor="gold"
+              baseColor="lightgray"
+              spacing={4.5}
+            />
+            <Text style={{ alignSelf: "center", fontWeight: "bold" }}>
+              ( {data.item.ratingCount} )
+            </Text>
+          </View>
         </View>
       </Card>
       {data.userRating ? (
