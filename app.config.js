@@ -3,14 +3,14 @@ const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 const getUniqueIdentifier = () => {
   if (IS_DEV) {
-    return "com.jithinlalk25.rate_india_ui.dev";
+    return "com.androjlk.rateindia.dev";
   }
 
   if (IS_PREVIEW) {
-    return "com.jithinlalk25.rate_india_ui.preview";
+    return "com.androjlk.rateindia.preview";
   }
 
-  return "com.jithinlalk25.rate_india_ui";
+  return "com.androjlk.rateindia";
 };
 
 const getAppName = () => {

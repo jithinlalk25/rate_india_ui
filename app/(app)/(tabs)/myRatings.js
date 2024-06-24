@@ -13,6 +13,10 @@ const index = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [
+    onEndReachedCalledDuringMomentum,
+    setOnEndReachedCalledDuringMomentum,
+  ] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,8 +62,9 @@ const index = () => {
   };
 
   const handleLoadMore = () => {
-    if (!loading && hasMore) {
+    if (!loading && hasMore && !onEndReachedCalledDuringMomentum) {
       getRatingsByUser(page + 1);
+      setOnEndReachedCalledDuringMomentum(true);
     }
   };
 
@@ -130,7 +135,7 @@ const index = () => {
   };
 
   return (
-    <View style={{ paddingTop: 2, paddingBottom: 80 }}>
+    <View style={{ paddingTop: 2 }}>
       {data && (
         <FlatList
           data={data}
@@ -138,6 +143,9 @@ const index = () => {
           keyExtractor={(item) => item._id}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
+          onMomentumScrollBegin={() => {
+            setOnEndReachedCalledDuringMomentum(false);
+          }}
           ListFooterComponent={renderFooter}
         />
       )}
