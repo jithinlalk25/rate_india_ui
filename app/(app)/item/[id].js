@@ -9,12 +9,15 @@ import {
   Avatar,
   Button,
   Card,
-  Divider,
+  Dialog,
   IconButton,
   Modal,
+  Portal,
+  RadioButton,
   TextInput,
 } from "react-native-paper";
 import { Rating } from "@kolking/react-native-rating";
+import RatingComponent from "./ratingComponent";
 
 export default function Page() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -32,6 +35,11 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);
+  const [filterDialogVisible, setFilterDialogVisible] = useState(false);
+  const [sortDialogVisible, setSortDialogVisible] = useState(false);
+  const [filterValue, setFilterValue] = useState("RATINGS_WITH_REVIEWS");
+  const [sortValue, setSortValue] = useState("relevance");
+  const [refreshRatings, setRefreshRatings] = useState(0);
 
   const refreshComponent = () => {
     setData(null);
@@ -49,7 +57,11 @@ export default function Page() {
 
     setLoading(true);
 
-    const params = { itemId: id };
+    const params = { itemId: id, sortBy: sortValue };
+
+    if (filterValue == "RATINGS_WITH_REVIEWS") {
+      params["filter"] = "WITH_REVIEW";
+    }
     if (ratings.length > 0) {
       params["lastId"] = ratings.at(-1)._id;
     }
@@ -81,7 +93,7 @@ export default function Page() {
 
   useEffect(() => {
     getRatingsByItem();
-  }, [refreshKey]);
+  }, [refreshKey, refreshRatings]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -177,52 +189,6 @@ export default function Page() {
   useEffect(() => {
     getData();
   }, [refreshKey]);
-
-  const renderItem = ({ item, index }) => {
-    const date = new Date(item.createdAt);
-    const dateFormatted = date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    return (
-      <View
-        style={{
-          marginLeft: 10,
-          marginRight: 10,
-          paddingTop: 5,
-        }}
-      >
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            paddingLeft: 5,
-            paddingRight: 5,
-          }}
-        >
-          <Text style={{ fontWeight: "bold", marginRight: 5 }}>
-            {item.rating}
-          </Text>
-          <Rating
-            size={15}
-            rating={item.rating}
-            disabled={true}
-            fillColor="gold"
-            baseColor="lightgray"
-            spacing={2.25}
-          />
-          <View style={{ flex: 1 }}></View>
-          <Text style={{ fontWeight: "bold" }}> {dateFormatted} </Text>
-        </View>
-        {item.review && (
-          <Text style={{ paddingLeft: 5, paddingRight: 5 }}>{item.review}</Text>
-        )}
-
-        <Divider style={{ marginTop: 15 }} />
-      </View>
-    );
-  };
 
   const ratingColor = (rating) => {
     if (rating >= 4.5) {
@@ -461,17 +427,108 @@ export default function Page() {
           />
         </Card>
       )}
+      <Portal>
+        <Dialog visible={filterDialogVisible} dismissable={false}>
+          <Dialog.Title>Filter</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group
+              onValueChange={(newValue) => setFilterValue(newValue)}
+              value={filterValue}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton value="ALL_RATINGS" />
+                <Text style={{ paddingTop: 8 }}>All Ratings</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton value="RATINGS_WITH_REVIEWS" />
+                <Text style={{ paddingTop: 8 }}>Ratings with reviews</Text>
+              </View>
+            </RadioButton.Group>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setFilterDialogVisible(false)}>
+              Cancel
+            </Button>
+            <Button
+              onPress={() => {
+                setRatings([]);
+                setPage(1);
+                setLoading(false);
+                setHasMore(true);
+                setRefreshRatings(refreshRatings + 1);
+                setFilterDialogVisible(false);
+              }}
+            >
+              Update
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Dialog visible={sortDialogVisible} dismissable={false}>
+          <Dialog.Title>Sort</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group
+              onValueChange={(newValue) => setSortValue(newValue)}
+              value={sortValue}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton value="relevance" />
+                <Text style={{ paddingTop: 8 }}>Relevance</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton value="newest" />
+                <Text style={{ paddingTop: 8 }}>Newest</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton value="oldest" />
+                <Text style={{ paddingTop: 8 }}>Oldest</Text>
+              </View>
+            </RadioButton.Group>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setSortDialogVisible(false)}>Cancel</Button>
+            <Button
+              onPress={() => {
+                setRatings([]);
+                setPage(1);
+                setLoading(false);
+                setHasMore(true);
+                setRefreshRatings(refreshRatings + 1);
+                setSortDialogVisible(false);
+              }}
+            >
+              Update
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
       {ratings?.length > 0 && (
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: "bold",
-            marginLeft: 10,
-            color: "#454545",
-          }}
-        >
-          All Ratings
-        </Text>
+        <View style={{ flexDirection: "row" }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginLeft: 10,
+              color: "#454545",
+            }}
+          >
+            All Ratings
+          </Text>
+          <View style={{ flex: 1 }}></View>
+          <Button
+            icon="filter-outline"
+            mode="text"
+            onPress={() => setFilterDialogVisible(true)}
+          >
+            Filter
+          </Button>
+          <Button
+            icon="sort"
+            mode="text"
+            onPress={() => setSortDialogVisible(true)}
+          >
+            Sort
+          </Button>
+        </View>
       )}
     </>
   );
@@ -482,7 +539,7 @@ export default function Page() {
         <FlatList
           ListHeaderComponent={HeaderComponent}
           data={ratings}
-          renderItem={renderItem}
+          renderItem={(item) => <RatingComponent item={item.item} />}
           keyExtractor={(item) => item._id}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
