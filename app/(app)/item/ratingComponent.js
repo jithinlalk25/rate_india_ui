@@ -104,6 +104,18 @@ export default renderItem = ({ item }) => {
       {item.review && (
         <View>
           <Text style={{ paddingLeft: 5, paddingRight: 5 }}>{item.review}</Text>
+          {item.isEdited && (
+            <Text
+              style={{
+                alignSelf: "flex-end",
+                fontSize: 13,
+                color: "gray",
+                paddingRight: 5,
+              }}
+            >
+              Edited
+            </Text>
+          )}
           <View style={{ flexDirection: "row" }}>
             <Button
               icon={isReported ? "flag" : "flag-outline"}

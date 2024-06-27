@@ -37,7 +37,7 @@ export default function Page() {
   const [modalLoading, setModalLoading] = useState(false);
   const [filterDialogVisible, setFilterDialogVisible] = useState(false);
   const [sortDialogVisible, setSortDialogVisible] = useState(false);
-  const [filterValue, setFilterValue] = useState("RATINGS_WITH_REVIEWS");
+  const [filterValue, setFilterValue] = useState("ALL_RATINGS");
   const [sortValue, setSortValue] = useState("relevance");
   const [refreshRatings, setRefreshRatings] = useState(0);
 
