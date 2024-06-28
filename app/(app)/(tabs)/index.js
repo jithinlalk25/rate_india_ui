@@ -11,6 +11,7 @@ import {
   Portal,
   Searchbar,
   Text,
+  TextInput,
 } from "react-native-paper";
 import { useSession } from "../../../ctx";
 import axios from "axios";
@@ -53,6 +54,52 @@ const index = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [bannerVisible, setBannerVisible] = useState(null);
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [userDataAvailable, setUserDataAvailable] = useState(null);
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+
+  const getUser = async () => {
+    try {
+      const response = await axios.get(`${Constant.API_URL}user`, {
+        headers: {
+          token: session,
+        },
+      });
+      if (response.data.username) {
+        setUserDataAvailable(true);
+      } else {
+        setUserDataAvailable(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  const updateUserData = async () => {
+    try {
+      const response = await axios.post(
+        `${Constant.API_URL}user/updateUserData`,
+        {
+          username,
+        },
+        {
+          headers: {
+            token: session,
+          },
+        }
+      );
+      setUserDataAvailable(true);
+    } catch (error) {
+      console.error(error);
+      if (error.response.status == 409) {
+        setUsernameError("Username already exist");
+      }
+    }
+  };
 
   const getStorageData = async () => {
     try {
@@ -264,6 +311,59 @@ const index = () => {
       </Card>
     );
   };
+
+  if (userDataAvailable == null) {
+    return;
+  }
+
+  if (userDataAvailable == false) {
+    return (
+      <Portal>
+        <Dialog visible={true} dismissable={false}>
+          <Dialog.Title style={{ ...styles.title, alignSelf: "center" }}>
+            Add your username
+          </Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              mode="outlined"
+              style={{ margin: 10, width: 200, alignSelf: "center" }}
+              label="Username"
+              value={username}
+              error={usernameError}
+              onChangeText={(data) => {
+                const allowedPattern = /^[a-zA-Z0-9_.-]{0,30}$/;
+                if (allowedPattern.test(data)) {
+                  setUsername(data);
+                  setUsernameError("");
+                }
+              }}
+              maxLength={30}
+            />
+            {usernameError ? (
+              <Text
+                style={{
+                  color: "red",
+                  marginTop: 8,
+                  alignSelf: "center",
+                }}
+              >
+                {usernameError}
+              </Text>
+            ) : null}
+            <Text>
+              • Minimum length is 3{"\n"}• Allowed characters - alphabets,
+              numbers, _, -, .
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button disabled={username.length < 3} onPress={updateUserData}>
+              Add
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  }
 
   return (
     <View style={{ paddingBottom: 80 }}>

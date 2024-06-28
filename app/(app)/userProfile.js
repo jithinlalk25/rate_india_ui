@@ -78,9 +78,20 @@ const userProfile = () => {
           {loading || !data ? (
             <ActivityIndicator style={{ height: 30 }} />
           ) : (
-            <Text style={{ fontSize: 30, fontWeight: "bold" }}>
-              {data.phoneNumber}
-            </Text>
+            <View>
+              <Text
+                style={{
+                  fontSize: 30,
+                  fontWeight: "bold",
+                  alignSelf: "center",
+                }}
+              >
+                {data.username}
+              </Text>
+              <Text style={{ fontSize: 30, fontWeight: "bold" }}>
+                {data.phoneNumber}
+              </Text>
+            </View>
           )}
         </View>
         <Button

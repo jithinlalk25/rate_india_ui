@@ -16,8 +16,20 @@ import {
   RadioButton,
   TextInput,
 } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { Rating } from "@kolking/react-native-rating";
 import RatingComponent from "./ratingComponent";
+
+const FilterEnum = {
+  ALL_RATINGS: "ALL_RATINGS",
+  RATINGS_WITH_REVIEWS: "RATINGS_WITH_REVIEWS",
+};
+
+const SortEnum = {
+  NEWEST: "NEWEST",
+  OLDEST: "OLDEST",
+  RELEVANCE: "RELEVANCE",
+};
 
 export default function Page() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -37,8 +49,8 @@ export default function Page() {
   const [modalLoading, setModalLoading] = useState(false);
   const [filterDialogVisible, setFilterDialogVisible] = useState(false);
   const [sortDialogVisible, setSortDialogVisible] = useState(false);
-  const [filterValue, setFilterValue] = useState("ALL_RATINGS");
-  const [sortValue, setSortValue] = useState("relevance");
+  const [filterValue, setFilterValue] = useState(FilterEnum.ALL_RATINGS);
+  const [sortValue, setSortValue] = useState(SortEnum.RELEVANCE);
   const [refreshRatings, setRefreshRatings] = useState(0);
 
   const refreshComponent = () => {
@@ -59,9 +71,8 @@ export default function Page() {
 
     const params = { itemId: id, sortBy: sortValue };
 
-    if (filterValue == "RATINGS_WITH_REVIEWS") {
-      params["filter"] = "WITH_REVIEW";
-    }
+    params["filter"] = filterValue;
+
     if (ratings.length > 0) {
       params["lastId"] = ratings.at(-1)._id;
     }
@@ -369,23 +380,54 @@ export default function Page() {
             spacing={4.5}
           />
           {data.userRating?.review && (
-            <Text
-              style={{
-                marginTop: 10,
-                fontSize: 15,
-                color: "#E1E1E1",
-              }}
-            >
-              {data.userRating.review}
-            </Text>
+            <View style={{ paddingBottom: 10 }}>
+              <Text
+                style={{
+                  marginTop: 10,
+                  fontSize: 15,
+                  color: "#E1E1E1",
+                }}
+              >
+                {data.userRating.review}
+              </Text>
+              {(data.userRating.likeCount > 0 || data.userRating.isEdited) && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    paddingTop: 5,
+                  }}
+                >
+                  {data.userRating.likeCount > 0 && (
+                    <View style={{ flexDirection: "row" }}>
+                      <Text
+                        style={{
+                          color: "lightblue",
+                          paddingRight: 5,
+                          paddingTop: 3,
+                        }}
+                      >
+                        {data.userRating.likeCount}
+                      </Text>
+                      <Icon name="thumb-up" size={20} color="lightblue" />
+                    </View>
+                  )}
+
+                  <View style={{ flex: 1 }}></View>
+                  {data.userRating.isEdited && (
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: "black",
+                        paddingRight: 5,
+                      }}
+                    >
+                      Edited
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
           )}
-          <View
-            style={{
-              flexDirection: "row",
-              marginTop: 10,
-              marginBottom: 10,
-            }}
-          ></View>
         </Card>
       ) : (
         <Card
@@ -436,11 +478,11 @@ export default function Page() {
               value={filterValue}
             >
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value="ALL_RATINGS" />
+                <RadioButton value={FilterEnum.ALL_RATINGS} />
                 <Text style={{ paddingTop: 8 }}>All Ratings</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value="RATINGS_WITH_REVIEWS" />
+                <RadioButton value={FilterEnum.RATINGS_WITH_REVIEWS} />
                 <Text style={{ paddingTop: 8 }}>Ratings with reviews</Text>
               </View>
             </RadioButton.Group>
@@ -471,15 +513,15 @@ export default function Page() {
               value={sortValue}
             >
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value="relevance" />
+                <RadioButton value={SortEnum.RELEVANCE} />
                 <Text style={{ paddingTop: 8 }}>Relevance</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value="newest" />
+                <RadioButton value={SortEnum.NEWEST} />
                 <Text style={{ paddingTop: 8 }}>Newest</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value="oldest" />
+                <RadioButton value={SortEnum.OLDEST} />
                 <Text style={{ paddingTop: 8 }}>Oldest</Text>
               </View>
             </RadioButton.Group>

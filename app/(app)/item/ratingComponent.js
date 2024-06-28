@@ -87,6 +87,11 @@ export default renderItem = ({ item }) => {
           paddingRight: 5,
         }}
       >
+        <Text
+          style={{ fontWeight: "bold", marginRight: 5, color: "darkgreen" }}
+        >
+          {item.username}
+        </Text>
         <Text style={{ fontWeight: "bold", marginRight: 5 }}>
           {item.rating}
         </Text>
