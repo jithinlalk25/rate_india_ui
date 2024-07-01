@@ -371,7 +371,7 @@ export default function Page() {
             />
           </View>
           <Rating
-            style={{ marginTop: 5 }}
+            style={{ marginTop: 5, paddingBottom: 10 }}
             size={30}
             rating={data.userRating.rating}
             disabled={true}
