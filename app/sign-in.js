@@ -142,7 +142,7 @@ export default function SignIn() {
       ) : (
         <View>
           <View style={{ flexDirection: "row" }}>
-            <Checkbox
+            <Checkbox.Android
               status={checked ? "checked" : "unchecked"}
               onPress={() => {
                 setChecked(!checked);

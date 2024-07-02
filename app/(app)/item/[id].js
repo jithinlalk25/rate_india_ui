@@ -52,6 +52,7 @@ export default function Page() {
   const [filterValue, setFilterValue] = useState(FilterEnum.ALL_RATINGS);
   const [sortValue, setSortValue] = useState(SortEnum.RELEVANCE);
   const [refreshRatings, setRefreshRatings] = useState(0);
+  const [allRatingsVisible, setAllRatingsVisible] = useState(false);
 
   const refreshComponent = () => {
     setData(null);
@@ -72,10 +73,7 @@ export default function Page() {
     const params = { itemId: id, sortBy: sortValue };
 
     params["filter"] = filterValue;
-
-    if (ratings.length > 0) {
-      params["lastId"] = ratings.at(-1)._id;
-    }
+    params["page"] = pageNumber;
 
     try {
       const response = await axios.post(
@@ -90,6 +88,9 @@ export default function Page() {
 
       const newData = response.data;
       setRatings((prevData) => [...prevData, ...newData]);
+      if (response.data.length > 0) {
+        setAllRatingsVisible(true);
+      }
       setPage(pageNumber);
       setHasMore(newData.length > 0);
     } catch (error) {
@@ -478,11 +479,11 @@ export default function Page() {
               value={filterValue}
             >
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value={FilterEnum.ALL_RATINGS} />
+                <RadioButton.Android value={FilterEnum.ALL_RATINGS} />
                 <Text style={{ paddingTop: 8 }}>All Ratings</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value={FilterEnum.RATINGS_WITH_REVIEWS} />
+                <RadioButton.Android value={FilterEnum.RATINGS_WITH_REVIEWS} />
                 <Text style={{ paddingTop: 8 }}>Ratings with reviews</Text>
               </View>
             </RadioButton.Group>
@@ -513,15 +514,15 @@ export default function Page() {
               value={sortValue}
             >
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value={SortEnum.RELEVANCE} />
+                <RadioButton.Android value={SortEnum.RELEVANCE} />
                 <Text style={{ paddingTop: 8 }}>Relevance</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value={SortEnum.NEWEST} />
+                <RadioButton.Android value={SortEnum.NEWEST} />
                 <Text style={{ paddingTop: 8 }}>Newest</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <RadioButton value={SortEnum.OLDEST} />
+                <RadioButton.Android value={SortEnum.OLDEST} />
                 <Text style={{ paddingTop: 8 }}>Oldest</Text>
               </View>
             </RadioButton.Group>
@@ -543,7 +544,7 @@ export default function Page() {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-      {ratings?.length > 0 && (
+      {allRatingsVisible && (
         <View style={{ flexDirection: "row" }}>
           <Text
             style={{

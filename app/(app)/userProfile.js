@@ -195,7 +195,7 @@ const userProfile = () => {
               logout();
               signOut();
             }}
-            style={{ width: 100, alignSelf: "center" }}
+            style={{ alignSelf: "center" }}
           >
             Logout
           </Button>
