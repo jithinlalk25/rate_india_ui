@@ -9,7 +9,16 @@ export default function TabLayout() {
         options={{
           title: "Rate India",
           tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="list-alt" color={color} />
+            <FontAwesome size={20} name="users" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="news"
+        options={{
+          title: "News",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome size={20} name="newspaper-o" color={color} />
           ),
         }}
       />

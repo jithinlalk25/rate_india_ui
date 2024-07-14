@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Linking, Platform, Share } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useSession } from "../../ctx";
 import axios from "axios";
@@ -200,10 +200,167 @@ const userProfile = () => {
             Logout
           </Button>
         </View>
-        <Text>App Version: {Constant.APP_VERSION}</Text>
+        <View>
+          <Button
+            icon="thumb-up"
+            mode="elevated"
+            textColor="darkgreen"
+            onPress={() => {
+              if (Platform.OS === "ios") {
+                Linking.openURL(
+                  "https://apps.apple.com/in/app/rate-india/id6504734648"
+                );
+              } else {
+                Linking.openURL(
+                  "https://play.google.com/store/apps/details?id=com.androjlk.rateindia"
+                );
+              }
+            }}
+            style={{ alignSelf: "center" }}
+          >
+            Rate Us
+          </Button>
+          <Button
+            icon="share-variant"
+            mode="elevated"
+            textColor="darkgreen"
+            onPress={shareApp}
+            style={{ alignSelf: "center", marginTop: 20 }}
+          >
+            Share Rate India
+          </Button>
+          <Button
+            icon="facebook"
+            mode="elevated"
+            textColor="darkgreen"
+            onPress={() =>
+              Linking.openURL(
+                "https://www.facebook.com/profile.php?id=61562122377188"
+              )
+            }
+            style={{ alignSelf: "center", marginTop: 20 }}
+          >
+            Facebook
+          </Button>
+        </View>
+        <View>
+          <Text
+            style={{
+              color: "darkorange",
+              alignSelf: "center",
+              fontWeight: "bold",
+              fontSize: 20,
+              marginBottom: 20,
+            }}
+            onPress={() => Linking.openURL("https://rateindia.in/")}
+          >
+            rateindia.in
+          </Text>
+          <Text
+            style={{
+              color: "blue",
+              textDecorationLine: "underline",
+              alignSelf: "center",
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+            onPress={() => Linking.openURL("mailto:support@rateindia.in")}
+          >
+            support@rateindia.in
+          </Text>
+          <Text
+            style={{
+              color: "gray",
+              marginTop: 20,
+              alignSelf: "center",
+            }}
+          >
+            <Text
+              style={{
+                color: "blue",
+                textDecorationLine: "underline",
+                alignSelf: "center",
+              }}
+              onPress={() =>
+                Linking.openURL(
+                  "https://sites.google.com/view/rate-india-terms/home"
+                )
+              }
+            >
+              Terms & Conditions
+            </Text>{" "}
+            •{" "}
+            <Text
+              style={{
+                color: "blue",
+                textDecorationLine: "underline",
+                alignSelf: "center",
+              }}
+              onPress={() =>
+                Linking.openURL(
+                  "https://sites.google.com/view/rateindia-privacypolicy/home"
+                )
+              }
+            >
+              Privacy Policy
+            </Text>{" "}
+            •{" "}
+            <Text
+              style={{
+                color: "blue",
+                textDecorationLine: "underline",
+                alignSelf: "center",
+              }}
+              onPress={() =>
+                Linking.openURL(
+                  "https://sites.google.com/view/rate-india-disclaimer/home"
+                )
+              }
+            >
+              Disclaimer
+            </Text>
+          </Text>
+          <Text
+            style={{
+              color: "gray",
+              alignSelf: "center",
+              fontSize: 10,
+            }}
+          >
+            version: {Constant.APP_VERSION}
+          </Text>
+        </View>
       </View>
     </View>
   );
+};
+
+const shareApp = async (text) => {
+  try {
+    const result = await Share.share({
+      message: `🇮🇳 Rate India 🇮🇳
+
+Rate and review Indian politicians. Discover who the public loves!
+
+Download Rate India now and start rating your favourite politician today!
+
+📱 Android - https://play.google.com/store/apps/details?id=com.androjlk.rateindia
+
+📱 IOS - https://apps.apple.com/in/app/rate-india/id6504734648`,
+    });
+
+    if (result.action === Share.sharedAction) {
+      if (result.activityType) {
+        console.log("Shared with activity type:", result.activityType);
+      } else {
+        console.log("Shared successfully");
+      }
+    } else if (result.action === Share.dismissedAction) {
+      console.log("Share dismissed");
+    }
+  } catch (error) {
+    alert(error.message);
+  }
 };
 
 export default userProfile;

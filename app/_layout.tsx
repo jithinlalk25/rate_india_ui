@@ -1,5 +1,5 @@
 import { Slot } from "expo-router";
-import { SessionProvider } from "../ctx";
+import { SessionProvider, useSession } from "../ctx";
 import { DefaultTheme, PaperProvider } from "react-native-paper";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -14,28 +14,36 @@ import {
 } from "react-native";
 
 export default function Root() {
-  const [showUpdateScreen, setShowUpdateScreen] = useState(null);
+  const { signOut } = useSession();
+  const [screenToShow, setScreenToShow] = useState("LOADING");
+  const [downTime, setDownTime] = useState("");
   const [updateUrl, setUpdateUrl] = useState("");
 
   const getConfig = async () => {
     try {
       const response = await axios.get(`${Constant.API_URL}config/getConfig`);
-      if (Platform.OS == "ios") {
+      if (response.data.IS_APP_DOWN.value) {
+        setDownTime(response.data.IS_APP_DOWN.time);
+        setScreenToShow("DOWN");
+      } else if (Platform.OS == "ios") {
         if (response.data.MIN_APP_VERSION.ios > Constant.APP_VERSION) {
           setUpdateUrl(response.data.APP_URL.appstore);
-          setShowUpdateScreen(true);
+          setScreenToShow("UPDATE");
         } else {
-          setShowUpdateScreen(false);
+          setScreenToShow("DEFAULT");
         }
       } else {
         if (response.data.MIN_APP_VERSION.android > Constant.APP_VERSION) {
           setUpdateUrl(response.data.APP_URL.playstore);
-          setShowUpdateScreen(true);
+          setScreenToShow("UPDATE");
         } else {
-          setShowUpdateScreen(false);
+          setScreenToShow("DEFAULT");
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response.status == 401) {
+        signOut();
+      }
       console.error(error);
     }
   };
@@ -44,13 +52,38 @@ export default function Root() {
     getConfig();
   }, []);
 
-  if (showUpdateScreen == null) {
+  if (screenToShow == "LOADING") {
     return (
       <View style={{ flex: 1, justifyContent: "center" }}>
         <ActivityIndicator size="large" />
       </View>
     );
-  } else if (showUpdateScreen == true) {
+  } else if (screenToShow == "DOWN") {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text
+          style={{
+            fontSize: 25,
+            fontWeight: "bold",
+            color: "gray",
+            marginBottom: 10,
+          }}
+        >
+          App is under maintenance
+        </Text>
+        <Text
+          style={{
+            fontSize: 25,
+            fontWeight: "bold",
+            color: "gray",
+          }}
+        >
+          Will be live by{" "}
+          <Text style={{ fontWeight: "bold", color: "black" }}>{downTime}</Text>
+        </Text>
+      </View>
+    );
+  } else if (screenToShow == "UPDATE") {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text

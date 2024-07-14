@@ -1,5 +1,12 @@
-import { FlatList, Linking, StyleSheet, View } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Linking,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Avatar,
@@ -19,19 +26,164 @@ import { Constant } from "../../../constants";
 import { router, useFocusEffect, useNavigation } from "expo-router";
 import { Rating } from "@kolking/react-native-rating";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+import * as Device from "expo-device";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+async function updateMetadata(session: any, metadata: any) {
+  try {
+    const response = await axios.post(
+      `${Constant.API_URL}user/updateMetadata`,
+      metadata,
+      {
+        headers: {
+          token: session,
+        },
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function registerForPushNotificationsAsync(session: any, user: any) {
+  let token;
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      await updateMetadata(session, { notificationGranted: false });
+      if (!user?.metadata?.notificationReminded) {
+        await handlePermissionDenied(session);
+      }
+      return;
+    } else {
+      await updateMetadata(session, { notificationGranted: true });
+    }
+
+    try {
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
+      if (!projectId) {
+        throw new Error("Project ID not found");
+      }
+      token = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      await updateMetadata(session, { expoPushToken: token });
+    } catch (e) {
+      token = `${e}`;
+    }
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  return token;
+}
+
+const openAppSettings = () => {
+  if (Platform.OS === "ios") {
+    Linking.openURL("app-settings:");
+  } else {
+    Linking.openSettings();
+  }
+};
+
+const handlePermissionDenied = async (session: any) => {
+  Alert.alert(
+    "Never miss an update!",
+    "Please enable notifications in your device settings",
+    [
+      { text: "Cancel", style: "cancel" },
+      { text: "Open Settings", onPress: openAppSettings },
+    ]
+  );
+  await updateMetadata(session, { notificationReminded: true });
+};
 
 const index = () => {
+  const { session, signOut } = useSession();
+  const [userDataAvailable, setUserDataAvailable] = useState<null | boolean>(
+    null
+  );
+
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
+    []
+  );
+  const [notification, setNotification] = useState<
+    Notifications.Notification | undefined
+  >(undefined);
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
+
+  const [combinedNotification, setCombinedNotification] = useState("");
+
+  const notificationPermission = (user: any) => {
+    registerForPushNotificationsAsync(session, user).then(
+      (token) => token && setExpoPushToken(token)
+    );
+
+    if (Platform.OS === "android") {
+      Notifications.getNotificationChannelsAsync().then((value) =>
+        setChannels(value ?? [])
+      );
+    }
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
+
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {});
+
+    return () => {
+      notificationListener.current &&
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+      responseListener.current &&
+        Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  };
+
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: "row" }}>
-          <IconButton
+          {/* <IconButton
             icon="alert-octagon"
             iconColor="darkblue"
             size={35}
             onPress={() => setDialogVisible(true)}
-          />
+          /> */}
           <IconButton
             icon="account-circle"
             iconColor="#000000"
@@ -43,18 +195,15 @@ const index = () => {
     });
   }, []);
 
-  const { session, signOut } = useSession();
-
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<Record<string, any>[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setsearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [bannerVisible, setBannerVisible] = useState(null);
+  const [bannerVisible, setBannerVisible] = useState<null | boolean>(null);
   const [dialogVisible, setDialogVisible] = useState(false);
-  const [userDataAvailable, setUserDataAvailable] = useState(null);
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
 
@@ -67,6 +216,7 @@ const index = () => {
       });
       if (response.data.username) {
         setUserDataAvailable(true);
+        notificationPermission(response.data);
       } else {
         setUserDataAvailable(false);
       }
@@ -93,7 +243,8 @@ const index = () => {
         }
       );
       setUserDataAvailable(true);
-    } catch (error) {
+      notificationPermission(response.data);
+    } catch (error: any) {
       console.error(error);
       if (error.response.status == 409) {
         setUsernameError("Username already exist");
@@ -137,7 +288,7 @@ const index = () => {
     getStorageData();
   }, []);
 
-  const searchData = async (text) => {
+  const searchData = async (text: string) => {
     setSearchQuery(text);
     text = text.trim();
     if (text.length < 3) {
@@ -158,7 +309,7 @@ const index = () => {
       );
 
       setsearchResult(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       if (error.response.status == 401) {
         signOut();
@@ -173,7 +324,7 @@ const index = () => {
 
     setLoading(true);
 
-    const params = data.length > 0 ? { order: data.at(-1).order } : {};
+    const params = data.length > 0 ? { order: data.at(-1)?.order } : {};
 
     try {
       const response = await axios.post(
@@ -191,7 +342,7 @@ const index = () => {
       setData((prevData) => [...prevData, ...newData]);
       setPage(pageNumber);
       setHasMore(newData.length > 0);
-    } catch (error) {
+    } catch (error: any) {
       if (error.response.status == 401) {
         signOut();
       }
@@ -223,7 +374,7 @@ const index = () => {
     return loading ? <ActivityIndicator style={styles.loader} /> : null;
   };
 
-  const ratingColor = (rating) => {
+  const ratingColor = (rating: number) => {
     if (rating >= 4.5) {
       return "#57e32c";
     }
@@ -242,7 +393,7 @@ const index = () => {
     return "gray";
   };
 
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ item }: { item: any }) => {
     return (
       <Card
         onPress={() => router.navigate(`/item/${item._id}`)}
@@ -320,7 +471,7 @@ const index = () => {
     return (
       <Portal>
         <Dialog visible={true} dismissable={false}>
-          <Dialog.Title style={{ ...styles.title, alignSelf: "center" }}>
+          <Dialog.Title style={{ alignSelf: "center" }}>
             Add your username
           </Dialog.Title>
           <Dialog.Content>
@@ -329,7 +480,7 @@ const index = () => {
               style={{ margin: 10, width: 200, alignSelf: "center" }}
               label="Username"
               value={username}
-              error={usernameError}
+              error={Boolean(usernameError)}
               onChangeText={(data) => {
                 const allowedPattern = /^[a-zA-Z0-9_.-]{0,30}$/;
                 if (allowedPattern.test(data)) {
@@ -368,8 +519,9 @@ const index = () => {
   return (
     <View style={{ paddingBottom: 80 }}>
       <Portal>
-        <Dialog visible={dialogVisible} dismissable={false}>
-          <Dialog.Title style={styles.title}>Disclaimer</Dialog.Title>
+        {/* <Dialog visible={dialogVisible} dismissable={false}> */}
+        <Dialog visible={false} dismissable={false}>
+          <Dialog.Title>Disclaimer</Dialog.Title>
           <Dialog.Content>
             <Text variant="bodyMedium">
               This app does not represent any government entity. The information

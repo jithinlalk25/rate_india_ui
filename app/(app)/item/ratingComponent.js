@@ -5,6 +5,7 @@ import { Button, Divider, Text } from "react-native-paper";
 import { useSession } from "../../../ctx";
 import { Constant } from "../../../constants";
 import axios from "axios";
+import { router } from "expo-router";
 
 export default renderItem = ({ item }) => {
   const { session, signOut } = useSession();
@@ -12,6 +13,7 @@ export default renderItem = ({ item }) => {
   const [isReported, setIsReported] = useState(Boolean(item.isReported));
 
   item.likeCount = item.likeCount || 0;
+  item.commentCount = item.commentCount || 0;
 
   const updateLike = async () => {
     try {
@@ -128,6 +130,21 @@ export default renderItem = ({ item }) => {
               onPress={updateReport}
             >
               {isReported ? "Reported" : "Report"}
+            </Button>
+            <View style={{ flex: 1 }}></View>
+            <Text style={{ paddingTop: 10, fontWeight: "bold" }}>
+              {item.commentCount}
+            </Text>
+            <Button
+              icon={
+                item.commentCount > 0
+                  ? "comment-multiple"
+                  : "comment-multiple-outline"
+              }
+              mode="text"
+              onPress={() => router.navigate(`/item/review/${item._id}`)}
+            >
+              Comments
             </Button>
             <View style={{ flex: 1 }}></View>
             <Text style={{ paddingTop: 10, fontWeight: "bold" }}>

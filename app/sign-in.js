@@ -148,7 +148,7 @@ export default function SignIn() {
                 setChecked(!checked);
               }}
             />
-            <Text style={{ marginTop: 8 }}>
+            <Text style={{ marginTop: 0 }}>
               I agree to the{" "}
               <Text
                 style={{ color: "blue", textDecorationLine: "underline" }}
@@ -158,7 +158,29 @@ export default function SignIn() {
                   )
                 }
               >
-                Terms and Conditions
+                Terms & Conditions
+              </Text>
+              ,{"\n"}
+              <Text
+                style={{ color: "blue", textDecorationLine: "underline" }}
+                onPress={() =>
+                  Linking.openURL(
+                    "https://sites.google.com/view/rateindia-privacypolicy/home"
+                  )
+                }
+              >
+                Privacy Policy
+              </Text>{" "}
+              &{" "}
+              <Text
+                style={{ color: "blue", textDecorationLine: "underline" }}
+                onPress={() =>
+                  Linking.openURL(
+                    "https://sites.google.com/view/rate-india-disclaimer/home"
+                  )
+                }
+              >
+                Disclaimer
               </Text>
             </Text>
           </View>

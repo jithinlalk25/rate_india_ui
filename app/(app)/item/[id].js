@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../../ctx";
@@ -399,12 +399,13 @@ export default function Page() {
                   }}
                 >
                   {data.userRating.likeCount > 0 && (
-                    <View style={{ flexDirection: "row" }}>
+                    <View style={{ flexDirection: "row", marginTop: 8 }}>
                       <Text
                         style={{
                           color: "lightblue",
                           paddingRight: 5,
                           paddingTop: 3,
+                          fontWeight: "bold",
                         }}
                       >
                         {data.userRating.likeCount}
@@ -414,12 +415,29 @@ export default function Page() {
                   )}
 
                   <View style={{ flex: 1 }}></View>
+
+                  {data.userRating.commentCount > 0 && (
+                    <Button
+                      icon="comment-multiple"
+                      mode="text"
+                      style={{ margin: 0, padding: 0 }}
+                      textColor="lightblue"
+                      onPress={() =>
+                        router.navigate(`/item/review/${data.userRating._id}`)
+                      }
+                    >
+                      {data.userRating.commentCount} Comments
+                    </Button>
+                  )}
+
+                  <View style={{ flex: 1 }}></View>
                   {data.userRating.isEdited && (
                     <Text
                       style={{
                         fontSize: 13,
                         color: "black",
                         paddingRight: 5,
+                        marginTop: 10,
                       }}
                     >
                       Edited
