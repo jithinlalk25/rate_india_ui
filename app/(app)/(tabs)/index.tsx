@@ -128,7 +128,7 @@ const handlePermissionDenied = async (session: any) => {
 };
 
 const index = () => {
-  const { session, signOut } = useSession();
+  const { session, signOut, updateUserId } = useSession();
   const [userDataAvailable, setUserDataAvailable] = useState<null | boolean>(
     null
   );
@@ -214,6 +214,7 @@ const index = () => {
           token: session,
         },
       });
+      updateUserId(response.data._id);
       if (response.data.username) {
         setUserDataAvailable(true);
         notificationPermission(response.data);

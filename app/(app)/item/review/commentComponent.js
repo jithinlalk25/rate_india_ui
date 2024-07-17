@@ -6,7 +6,7 @@ import { Constant } from "../../../../constants";
 import axios from "axios";
 
 export default renderItem = ({ item }) => {
-  const { session, signOut } = useSession();
+  const { session, signOut, userId } = useSession();
   const [isLiked, setIsLiked] = useState(Boolean(item.isLiked));
   const [isReported, setIsReported] = useState(Boolean(item.isReported));
   const [isDeleted, setIsDeleted] = useState(false);
@@ -144,26 +144,32 @@ export default renderItem = ({ item }) => {
             >
               {isLiked ? "Liked" : "Like"}
             </Button>
-            <Button
-              icon="delete"
-              mode="text"
-              onPress={() => {
-                Alert.alert("Delete", "Are you sure to delete your comment?", [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Yes",
-                    onPress: () => {
-                      deleteComment(item._id);
-                    },
-                  },
-                ]);
-              }}
-            >
-              Delete
-            </Button>
+            {userId == item.userId && (
+              <Button
+                icon="delete"
+                mode="text"
+                onPress={() => {
+                  Alert.alert(
+                    "Delete",
+                    "Are you sure to delete your comment?",
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
+                      },
+                      {
+                        text: "Yes",
+                        onPress: () => {
+                          deleteComment(item._id);
+                        },
+                      },
+                    ]
+                  );
+                }}
+              >
+                Delete
+              </Button>
+            )}
           </View>
         </View>
       </View>

@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "42531225611",
+    "project_id": "rate-india-424613",
+    "storage_bucket": "rate-india-424613.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42531225611:android:dd4ed5e868c42b4433870e",
+        "android_client_info": {
+          "package_name": "com.androjlk.rateindia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWN37Y4GFBvGu9AVkyhBqAbRIqZCjJTws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42531225611:android:fb472d9b973d01b933870e",
+        "android_client_info": {
+          "package_name": "com.androjlk.rateindia.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWN37Y4GFBvGu9AVkyhBqAbRIqZCjJTws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42531225611:android:d7385d02224052ee33870e",
+        "android_client_info": {
+          "package_name": "com.androjlk.rateindia.preview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWN37Y4GFBvGu9AVkyhBqAbRIqZCjJTws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
