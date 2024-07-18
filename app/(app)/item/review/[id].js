@@ -288,7 +288,10 @@ export default function Page() {
           mode="contained"
           style={{ marginTop: 10, marginBottom: 5, alignSelf: "center" }}
           size={25}
-          onPress={() => setDialogVisible(true)}
+          onPress={() => {
+            setComment("");
+            setDialogVisible(true);
+          }}
         >
           Add Comment
         </Button>
@@ -306,7 +309,7 @@ export default function Page() {
               mode="outlined"
               style={{ margin: 10, width: "100%", alignSelf: "center" }}
               label="Comment"
-              value={comment}
+              defaultValue={comment}
               onChangeText={setComment}
               numberOfLines={5}
               multiline={true}
