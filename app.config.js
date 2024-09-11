@@ -30,7 +30,7 @@ export default {
     name: getAppName(),
     slug: "rate_india_ui",
     scheme: "rate-india-ui",
-    version: "1.0.1",
+    version: "1.0.2",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
