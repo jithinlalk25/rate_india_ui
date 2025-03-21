@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../../ctx";
@@ -9,12 +9,27 @@ import {
   Avatar,
   Button,
   Card,
-  Divider,
+  Dialog,
   IconButton,
   Modal,
+  Portal,
+  RadioButton,
   TextInput,
 } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { Rating } from "@kolking/react-native-rating";
+import RatingComponent from "./ratingComponent";
+
+const FilterEnum = {
+  ALL_RATINGS: "ALL_RATINGS",
+  RATINGS_WITH_REVIEWS: "RATINGS_WITH_REVIEWS",
+};
+
+const SortEnum = {
+  NEWEST: "NEWEST",
+  OLDEST: "OLDEST",
+  RELEVANCE: "RELEVANCE",
+};
 
 export default function Page() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -26,12 +41,18 @@ export default function Page() {
   const [newReview, setNewReview] = useState("");
   const [newRating, setNewRating] = useState(0);
   const [ratings, setRatings] = useState([]);
-  const { session } = useSession();
+  const { session, signOut } = useSession();
   const [visible, setVisible] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);
+  const [filterDialogVisible, setFilterDialogVisible] = useState(false);
+  const [sortDialogVisible, setSortDialogVisible] = useState(false);
+  const [filterValue, setFilterValue] = useState(FilterEnum.ALL_RATINGS);
+  const [sortValue, setSortValue] = useState(SortEnum.RELEVANCE);
+  const [refreshRatings, setRefreshRatings] = useState(0);
+  const [allRatingsVisible, setAllRatingsVisible] = useState(false);
 
   const refreshComponent = () => {
     setData(null);
@@ -49,10 +70,10 @@ export default function Page() {
 
     setLoading(true);
 
-    const params = { itemId: id };
-    if (ratings.length > 0) {
-      params["lastId"] = ratings.at(-1)._id;
-    }
+    const params = { itemId: id, sortBy: sortValue };
+
+    params["filter"] = filterValue;
+    params["page"] = pageNumber;
 
     try {
       const response = await axios.post(
@@ -67,10 +88,16 @@ export default function Page() {
 
       const newData = response.data;
       setRatings((prevData) => [...prevData, ...newData]);
+      if (response.data.length > 0) {
+        setAllRatingsVisible(true);
+      }
       setPage(pageNumber);
       setHasMore(newData.length > 0);
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     } finally {
       setLoading(false);
     }
@@ -78,7 +105,7 @@ export default function Page() {
 
   useEffect(() => {
     getRatingsByItem();
-  }, [refreshKey]);
+  }, [refreshKey, refreshRatings]);
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
@@ -108,6 +135,9 @@ export default function Page() {
       refreshComponent();
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     }
   };
 
@@ -131,6 +161,9 @@ export default function Page() {
       refreshComponent();
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     } finally {
       setModalLoading(false);
     }
@@ -159,57 +192,15 @@ export default function Page() {
       }
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     }
   };
 
   useEffect(() => {
     getData();
   }, [refreshKey]);
-
-  const renderItem = ({ item, index }) => {
-    const date = new Date(item.createdAt);
-    const dateFormatted = date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    return (
-      <View
-        style={{
-          marginLeft: 10,
-          marginRight: 10,
-          paddingTop: 5,
-        }}
-      >
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            paddingLeft: 5,
-            paddingRight: 5,
-          }}
-        >
-          <Text style={{ fontWeight: "bold", marginRight: 5 }}>
-            {item.rating}
-          </Text>
-          <Rating
-            size={15}
-            rating={item.rating}
-            disabled={true}
-            fillColor="gold"
-            spacing={2.25}
-          />
-          <View style={{ flex: 1 }}></View>
-          <Text style={{ fontWeight: "bold" }}> {dateFormatted} </Text>
-        </View>
-        {item.review && (
-          <Text style={{ paddingLeft: 5, paddingRight: 5 }}>{item.review}</Text>
-        )}
-
-        <Divider style={{ marginTop: 15 }} />
-      </View>
-    );
-  };
 
   const ratingColor = (rating) => {
     if (rating >= 4.5) {
@@ -308,14 +299,20 @@ export default function Page() {
               </Text>
             </View>
           </View>
-          <Rating
-            style={{ height: 50, paddingBottom: 6 }}
-            size={30}
-            rating={data.item.rating}
-            disabled={true}
-            fillColor="gold"
-            spacing={4.5}
-          />
+          <View style={{ height: 50, paddingBottom: 6 }}>
+            <Rating
+              style={{}}
+              size={30}
+              rating={data.item.rating}
+              disabled={true}
+              fillColor="gold"
+              baseColor="lightgray"
+              spacing={4.5}
+            />
+            <Text style={{ alignSelf: "center", fontWeight: "bold" }}>
+              ( {data.item.ratingCount} )
+            </Text>
+          </View>
         </View>
       </Card>
       {data.userRating ? (
@@ -375,31 +372,81 @@ export default function Page() {
             />
           </View>
           <Rating
-            style={{ marginTop: 5 }}
+            style={{ marginTop: 5, paddingBottom: 10 }}
             size={30}
             rating={data.userRating.rating}
             disabled={true}
             fillColor="gold"
+            baseColor="lightgray"
             spacing={4.5}
           />
           {data.userRating?.review && (
-            <Text
-              style={{
-                marginTop: 10,
-                fontSize: 15,
-                color: "#E1E1E1",
-              }}
-            >
-              {data.userRating.review}
-            </Text>
+            <View style={{ paddingBottom: 10 }}>
+              <Text
+                style={{
+                  marginTop: 10,
+                  fontSize: 15,
+                  color: "#E1E1E1",
+                }}
+              >
+                {data.userRating.review}
+              </Text>
+              {(data.userRating.likeCount > 0 || data.userRating.isEdited) && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    paddingTop: 5,
+                  }}
+                >
+                  {data.userRating.likeCount > 0 && (
+                    <View style={{ flexDirection: "row", marginTop: 8 }}>
+                      <Text
+                        style={{
+                          color: "lightblue",
+                          paddingRight: 5,
+                          paddingTop: 3,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {data.userRating.likeCount}
+                      </Text>
+                      <Icon name="thumb-up" size={20} color="lightblue" />
+                    </View>
+                  )}
+
+                  <View style={{ flex: 1 }}></View>
+
+                  {data.userRating.commentCount > 0 && (
+                    <Button
+                      icon="comment-multiple"
+                      mode="text"
+                      style={{ margin: 0, padding: 0 }}
+                      textColor="lightblue"
+                      onPress={() =>
+                        router.navigate(`/item/review/${data.userRating._id}`)
+                      }
+                    >
+                      {data.userRating.commentCount} Comments
+                    </Button>
+                  )}
+
+                  <View style={{ flex: 1 }}></View>
+                  {data.userRating.isEdited && (
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: "black",
+                        paddingRight: 5,
+                        marginTop: 10,
+                      }}
+                    >
+                      Edited
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
           )}
-          <View
-            style={{
-              flexDirection: "row",
-              marginTop: 10,
-              marginBottom: 10,
-            }}
-          ></View>
         </Card>
       ) : (
         <Card
@@ -431,6 +478,7 @@ export default function Page() {
             size={30}
             rating={0}
             touchColor="gold"
+            baseColor="lightgray"
             fillColor="gold"
             onChange={(rating) => {
               setNewRating(rating);
@@ -440,17 +488,108 @@ export default function Page() {
           />
         </Card>
       )}
-      {ratings?.length > 0 && (
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: "bold",
-            marginLeft: 10,
-            color: "#454545",
-          }}
-        >
-          All Ratings
-        </Text>
+      <Portal>
+        <Dialog visible={filterDialogVisible} dismissable={false}>
+          <Dialog.Title>Filter</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group
+              onValueChange={(newValue) => setFilterValue(newValue)}
+              value={filterValue}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton.Android value={FilterEnum.ALL_RATINGS} />
+                <Text style={{ paddingTop: 8 }}>All Ratings</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton.Android value={FilterEnum.RATINGS_WITH_REVIEWS} />
+                <Text style={{ paddingTop: 8 }}>Ratings with reviews</Text>
+              </View>
+            </RadioButton.Group>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setFilterDialogVisible(false)}>
+              Cancel
+            </Button>
+            <Button
+              onPress={() => {
+                setRatings([]);
+                setPage(1);
+                setLoading(false);
+                setHasMore(true);
+                setRefreshRatings(refreshRatings + 1);
+                setFilterDialogVisible(false);
+              }}
+            >
+              Update
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Dialog visible={sortDialogVisible} dismissable={false}>
+          <Dialog.Title>Sort</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group
+              onValueChange={(newValue) => setSortValue(newValue)}
+              value={sortValue}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton.Android value={SortEnum.RELEVANCE} />
+                <Text style={{ paddingTop: 8 }}>Relevance</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton.Android value={SortEnum.NEWEST} />
+                <Text style={{ paddingTop: 8 }}>Newest</Text>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <RadioButton.Android value={SortEnum.OLDEST} />
+                <Text style={{ paddingTop: 8 }}>Oldest</Text>
+              </View>
+            </RadioButton.Group>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setSortDialogVisible(false)}>Cancel</Button>
+            <Button
+              onPress={() => {
+                setRatings([]);
+                setPage(1);
+                setLoading(false);
+                setHasMore(true);
+                setRefreshRatings(refreshRatings + 1);
+                setSortDialogVisible(false);
+              }}
+            >
+              Update
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      {allRatingsVisible && (
+        <View style={{ flexDirection: "row" }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginLeft: 10,
+              color: "#454545",
+            }}
+          >
+            All Ratings
+          </Text>
+          <View style={{ flex: 1 }}></View>
+          <Button
+            icon="filter-outline"
+            mode="text"
+            onPress={() => setFilterDialogVisible(true)}
+          >
+            Filter
+          </Button>
+          <Button
+            icon="sort"
+            mode="text"
+            onPress={() => setSortDialogVisible(true)}
+          >
+            Sort
+          </Button>
+        </View>
       )}
     </>
   );
@@ -461,7 +600,7 @@ export default function Page() {
         <FlatList
           ListHeaderComponent={HeaderComponent}
           data={ratings}
-          renderItem={renderItem}
+          renderItem={(item) => <RatingComponent item={item.item} />}
           keyExtractor={(item) => item._id}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
@@ -493,6 +632,7 @@ export default function Page() {
               size={30}
               rating={newRating}
               touchColor="gold"
+              baseColor="lightgray"
               fillColor="gold"
               spacing={4.5}
               onChange={setNewRating}

@@ -1,4 +1,6 @@
 export const Constant = {
-  // API_URL: "http://192.168.1.17:3000/",
-  API_URL: "https://rateindiabackend-8vxg2x57.b4a.run/",
+  APP_VERSION: 9,
+  // API_URL: "http://192.168.1.4:3000/",
+  // API_URL: "https://rate-india-dev-phx7h.ondigitalocean.app/",
+  API_URL: "https://rate-india-prod-wgrmy.ondigitalocean.app/",
 };

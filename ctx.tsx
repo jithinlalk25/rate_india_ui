@@ -4,12 +4,16 @@ import { useStorageState } from "./useStorageState";
 const AuthContext = React.createContext<{
   signIn: (token: string) => void;
   signOut: () => void;
+  updateUserId: (data: any) => void;
   session?: string | null;
+  userId?: any;
   isLoading: boolean;
 }>({
   signIn: (token) => null,
   signOut: () => null,
+  updateUserId: (data) => null,
   session: null,
+  userId: null,
   isLoading: false,
 });
 
@@ -27,6 +31,7 @@ export function useSession() {
 
 export function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
+  const [[_, userId], setUserId] = useStorageState("userId");
 
   return (
     <AuthContext.Provider
@@ -37,7 +42,11 @@ export function SessionProvider(props: React.PropsWithChildren) {
         signOut: () => {
           setSession(null);
         },
+        updateUserId: (data) => {
+          setUserId(data);
+        },
         session,
+        userId,
         isLoading,
       }}
     >

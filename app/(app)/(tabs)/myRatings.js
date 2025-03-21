@@ -1,24 +1,34 @@
-import { FlatList, StyleSheet, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Avatar,
-  Card,
-  IconButton,
-  Text,
-} from "react-native-paper";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useState } from "react";
+import { ActivityIndicator, Avatar, Card, Text } from "react-native-paper";
 import { useSession } from "../../../ctx";
 import axios from "axios";
 import { Constant } from "../../../constants";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Rating } from "@kolking/react-native-rating";
 
 const index = () => {
   const [data, setData] = useState([]);
-  const { session } = useSession();
+  const { session, signOut } = useSession();
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [
+    onEndReachedCalledDuringMomentum,
+    setOnEndReachedCalledDuringMomentum,
+  ] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      getRatingsByUser();
+      return () => {
+        setData([]);
+        setPage(1);
+        setLoading(false);
+        setHasMore(true);
+      };
+    }, [])
+  );
 
   const getRatingsByUser = async (pageNumber = 1) => {
     if (loading || !hasMore) return;
@@ -43,18 +53,18 @@ const index = () => {
       setHasMore(newData.length > 0);
     } catch (error) {
       console.error(error);
+      if (error.response.status == 401) {
+        signOut();
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    getRatingsByUser();
-  }, []);
-
   const handleLoadMore = () => {
-    if (!loading && hasMore) {
+    if (!loading && hasMore && !onEndReachedCalledDuringMomentum) {
       getRatingsByUser(page + 1);
+      setOnEndReachedCalledDuringMomentum(true);
     }
   };
 
@@ -70,64 +80,57 @@ const index = () => {
       day: "numeric",
     });
     return (
-      <Card
-        style={{
-          marginLeft: 2,
-          marginRight: 2,
-          marginBottom: 2,
-          borderColor: "black",
-          borderWidth: 0.5,
-        }}
+      <TouchableOpacity
+        onPress={() => router.navigate(`/item/${item.item._id}`)}
       >
-        <View style={{ flex: 1, flexDirection: "row", padding: 3 }}>
-          <Avatar.Image
-            style={{ margin: 5 }}
-            size={55}
-            source={{ uri: item.item.image }}
-          />
-          <View style={{ flex: 1, justifyContent: "center", marginLeft: 5 }}>
-            <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-              {item.item.name}
-            </Text>
-            <Text style={{ color: "#666", fontSize: 12 }}>
-              {item.item.description}
-            </Text>
-            <Text style={{ fontWeight: "bold", fontSize: 12 }}>
-              {dateFormatted}
-            </Text>
-          </View>
-          <View
-            style={{
-              justifyContent: "center",
-              marginRight: 5,
-              alignItems: "center",
-            }}
-          >
-            <Rating
-              size={15}
-              rating={item.rating}
-              disabled={true}
-              fillColor="gold"
-              spacing={2.25}
+        <Card
+          style={{
+            marginLeft: 2,
+            marginRight: 2,
+            marginBottom: 2,
+            borderColor: "black",
+            borderWidth: 0.5,
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: "row", padding: 3 }}>
+            <Avatar.Image
+              style={{ margin: 5 }}
+              size={55}
+              source={{ uri: item.item.image }}
             />
-            {/* <Button
-              style={{}}
-              icon="pencil"
-              mode="text"
-              onPress={() => router.navigate(`/item/${item.item._id}`)}
+            <View style={{ flex: 1, justifyContent: "center", marginLeft: 5 }}>
+              <Text style={{ fontSize: 15, fontWeight: "bold" }}>
+                {item.item.name}
+              </Text>
+              <Text style={{ color: "#666", fontSize: 12 }}>
+                {item.item.description}
+              </Text>
+              <Text style={{ fontWeight: "bold", fontSize: 12 }}>
+                {dateFormatted}
+              </Text>
+            </View>
+            <View
+              style={{
+                justifyContent: "center",
+                marginRight: 5,
+                alignItems: "center",
+              }}
             >
-              Edit
-            </Button> */}
-            <IconButton
-              icon="pencil"
-              size={20}
-              iconColor="darkblue"
-              style={{ padding: 0, margin: 0 }}
-              onPress={() => router.navigate(`/item/${item.item._id}`)}
-            />
+              <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+                {item.rating}
+              </Text>
+              <Rating
+                size={15}
+                rating={item.rating}
+                disabled={true}
+                fillColor="gold"
+                baseColor="lightgray"
+                spacing={2.25}
+              />
+            </View>
           </View>
-        </View>
-      </Card>
+        </Card>
+      </TouchableOpacity>
     );
   };
 
@@ -140,6 +143,9 @@ const index = () => {
           keyExtractor={(item) => item._id}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
+          onMomentumScrollBegin={() => {
+            setOnEndReachedCalledDuringMomentum(false);
+          }}
           ListFooterComponent={renderFooter}
         />
       )}

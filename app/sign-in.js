@@ -1,9 +1,9 @@
 import * as React from "react";
 import { router } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Linking, StyleSheet, View } from "react-native";
 
 import { useSession } from "../ctx";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, Checkbox, Text, TextInput } from "react-native-paper";
 import axios from "axios";
 import { Constant } from "../constants";
 
@@ -42,6 +42,7 @@ export default function SignIn() {
   const [counter, setCounter] = React.useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = React.useState(false);
   const [hasStarted, setHasStarted] = React.useState(false);
+  const [checked, setChecked] = React.useState(false);
 
   React.useEffect(() => {
     let timer;
@@ -139,20 +140,66 @@ export default function SignIn() {
           </Button>
         </View>
       ) : (
-        <Button
-          style={{ margin: 10, width: 150 }}
-          mode="outlined"
-          onPress={() => {
-            if (phoneNumber.length != 10) {
-              setPhoneNumberError("Invalid Phone Number");
-              return;
-            }
-            handleStart();
-            sendOtp(phoneNumber, setOtpSend);
-          }}
-        >
-          Send OTP
-        </Button>
+        <View>
+          <View style={{ flexDirection: "row" }}>
+            <Checkbox.Android
+              status={checked ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked(!checked);
+              }}
+            />
+            <Text style={{ marginTop: 0 }}>
+              I agree to the{" "}
+              <Text
+                style={{ color: "blue", textDecorationLine: "underline" }}
+                onPress={() =>
+                  Linking.openURL(
+                    "https://sites.google.com/view/rate-india-terms/home"
+                  )
+                }
+              >
+                Terms & Conditions
+              </Text>
+              ,{"\n"}
+              <Text
+                style={{ color: "blue", textDecorationLine: "underline" }}
+                onPress={() =>
+                  Linking.openURL(
+                    "https://sites.google.com/view/rateindia-privacypolicy/home"
+                  )
+                }
+              >
+                Privacy Policy
+              </Text>{" "}
+              &{" "}
+              <Text
+                style={{ color: "blue", textDecorationLine: "underline" }}
+                onPress={() =>
+                  Linking.openURL(
+                    "https://sites.google.com/view/rate-india-disclaimer/home"
+                  )
+                }
+              >
+                Disclaimer
+              </Text>
+            </Text>
+          </View>
+          <Button
+            disabled={!checked}
+            style={{ margin: 10, width: 150, alignSelf: "center" }}
+            mode="outlined"
+            onPress={() => {
+              if (phoneNumber.length != 10) {
+                setPhoneNumberError("Invalid Phone Number");
+                return;
+              }
+              handleStart();
+              sendOtp(phoneNumber, setOtpSend);
+            }}
+          >
+            Send OTP
+          </Button>
+        </View>
       )}
     </View>
   );

@@ -3,14 +3,14 @@ const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 const getUniqueIdentifier = () => {
   if (IS_DEV) {
-    return "com.jithinlalk25.rate_india_ui.dev";
+    return "com.androjlk.rateindia.dev";
   }
 
   if (IS_PREVIEW) {
-    return "com.jithinlalk25.rate_india_ui.preview";
+    return "com.androjlk.rateindia.preview";
   }
 
-  return "com.jithinlalk25.rate_india_ui";
+  return "com.androjlk.rateindia";
 };
 
 const getAppName = () => {
@@ -30,7 +30,7 @@ export default {
     name: getAppName(),
     slug: "rate_india_ui",
     scheme: "rate-india-ui",
-    version: "1.0.0",
+    version: "1.0.2",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
@@ -54,6 +54,7 @@ export default {
       },
       package: getUniqueIdentifier(),
       versionCode: "1",
+      googleServicesFile: "./google-services.json",
     },
     web: {
       favicon: "./assets/favicon.png",

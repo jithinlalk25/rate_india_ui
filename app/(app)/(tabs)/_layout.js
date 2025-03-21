@@ -1,6 +1,5 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { router, Tabs } from "expo-router";
-import { Avatar, Button, IconButton } from "react-native-paper";
+import { Tabs } from "expo-router";
 
 export default function TabLayout() {
   return (
@@ -10,15 +9,16 @@ export default function TabLayout() {
         options={{
           title: "Rate India",
           tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="list-alt" color={color} />
+            <FontAwesome size={20} name="users" color={color} />
           ),
-          headerRight: () => (
-            <IconButton
-              icon="account-circle"
-              iconColor="#000000"
-              size={35}
-              onPress={() => router.navigate(`/userProfile`)}
-            />
+        }}
+      />
+      <Tabs.Screen
+        name="news"
+        options={{
+          title: "News",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome size={20} name="newspaper-o" color={color} />
           ),
         }}
       />
